@@ -14,7 +14,7 @@ import (
 
 const (
 	DefaultHystrixTimeout    = 5000
-	DefaultHystrixMaxRequest = 10
+	DefaultHystrixMaxRequest = 3
 )
 
 type QueryHitResult struct {
@@ -245,7 +245,8 @@ func CreateElasticSearchClient(addrs []string) (*ElasticClient, error) {
 		elastic.SetHealthcheckInterval(10*time.Second),
 		elastic.SetGzip(true),
 		elastic.SetErrorLog(log.New(os.Stderr, "ELASTIC ", log.LstdFlags)),
-		elastic.SetInfoLog(log.New(os.Stdout, "", log.LstdFlags)))
+		elastic.SetInfoLog(log.New(os.Stdout, "", log.LstdFlags)),
+		elastic.SetHealthcheck(false),)
 	if err != nil {
 		return nil, err
 	}

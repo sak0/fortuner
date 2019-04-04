@@ -7,7 +7,7 @@ groups:
     type: any
     filter:
     - query:
-        query_string: ERROR
+        query_string: ERRORRRRRRR
     labels:
       trigger_interval: 5m
     annotations:

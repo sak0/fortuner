@@ -102,7 +102,6 @@ func (g *Group) Eval(ts time.Time) {
 		return
 	default:
 		var alerts []*Alert
-		ctx, cancel := context.WithCancel(g.opts.Ctx)
 		for _, rule := range g.rules {
 			if err := rule.DetermineIndex(g.opts.EnableFuzzyIndex); err != nil {
 				glog.V(2).Infof("rule(%s) determine index failed: %v", rule.Name(), err)
@@ -113,12 +112,13 @@ func (g *Group) Eval(ts time.Time) {
 				continue
 			}
 
+			ctx, cancel := context.WithCancel(g.opts.Ctx)
 			for obj := range needSending(ctx, genAlerts(ctx, rule.ActiveAlerts()), g.opts.ResendDelay, ts) {
 				alert := obj.(*Alert)
 				alerts = append(alerts, alert)
 			}
+			cancel()
 		}
-		cancel()
 
 		g.opts.NotifyFunc(g.opts.Ctx, alerts...)
 	}

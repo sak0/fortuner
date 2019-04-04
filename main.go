@@ -5,10 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
-	"os"
-	"time"
+		"time"
 
-	//_ "net/http/pprof"
+	_ "net/http/pprof"
 
 	"github.com/fsnotify/fsnotify"
 	"golang.org/x/time/rate"
@@ -17,9 +16,7 @@ import (
 	"github.com/sak0/fortuner/pkg/rules"
 	"github.com/sak0/fortuner/pkg/utils"
 
-	"os/signal"
-
-	"github.com/golang/glog"
+		"github.com/golang/glog"
 )
 
 var (
@@ -130,27 +127,29 @@ func main() {
 		}
 	}()
 
-	limit := utils.Per(10*time.Second, 1)
-	h := MyHandle{
-		ruleManager: ruleManager,
-		limiter:     rate.NewLimiter(limit, 1),
-	}
-	srv := http.Server{
-		Addr:         "0.0.0.0:17001",
-		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 30 * time.Second,
-		IdleTimeout:  60 * time.Second,
-		Handler:      h,
-	}
-	srv.ListenAndServe()
+	http.ListenAndServe("0.0.0.0:8080", nil)
 
-	go func() {
-		stopCh := make(chan os.Signal)
-		signal.Notify(stopCh, os.Kill, os.Interrupt)
-		<-stopCh
-		close(done)
-		srv.Close()
-	}()
+	//limit := utils.Per(10 * time.Second, 1)
+	//h := MyHandle{
+	//	ruleManager: ruleManager,
+	//	limiter:     rate.NewLimiter(limit, 1),
+	//}
+	//srv := http.Server{
+	//	Addr:         "0.0.0.0:17001",
+	//	ReadTimeout:  30 * time.Second,
+	//	WriteTimeout: 30 * time.Second,
+	//	IdleTimeout:  60 * time.Second,
+	//	Handler:      h,
+	//}
+	//srv.ListenAndServe()
+	//
+	//go func() {
+	//	stopCh := make(chan os.Signal)
+	//	signal.Notify(stopCh, os.Kill, os.Interrupt)
+	//	<-stopCh
+	//	close(done)
+	//	srv.Close()
+	//}()
 }
 
 type sender interface {

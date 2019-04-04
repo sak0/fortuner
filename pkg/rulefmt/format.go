@@ -142,7 +142,7 @@ func (r *Rule) validateTypeWhiteBlackList() error {
 
 func (r *Rule) Validate() error {
 	if err := isIpList(strings.Split(r.ElasticHosts, ",")); err != nil {
-		return fmt.Errorf("rule %s es_hosts %s is invalid.\n", r.Alert, r.ElasticHosts)
+		return fmt.Errorf("rule %s es_hosts %s is invalid: %v\n", r.Alert, r.ElasticHosts, err)
 	}
 
 	if r.TimeFrame > MaxTimeFrame {
