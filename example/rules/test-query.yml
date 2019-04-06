@@ -1,0 +1,20 @@
+groups:
+- name: yonghui.cn
+  rules:
+  - alert: alert_wfg_ALERT_WFG_fg_fg_fg
+    index: index_2570ca07782a4996_8166106f02fe423a_20190329
+    es_hosts: 10.214.153.12:9200,http://10.214.153.12:9200,http://10.214.153.12:9200
+    type: frequency
+    filter:
+    - query:
+        query_string: "appc-service-anemone"
+    num_events: 50
+    time_frame: 360h
+    labels:
+      trigger_interval: 1m
+    annotations:
+      ALARM_STRATEGY_ID: ef9dee3dcd9d4088b393831a494e97f4
+      alarm_type: log
+      alert_rule_uuid: fccabc10c23a472f9a0c0235c08becb6
+      tenant_id: "111122223333444da45555666677778888"
+      trigger_interval: "60"
