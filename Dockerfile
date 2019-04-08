@@ -13,5 +13,5 @@ RUN make
 FROM alpine:3.6
 COPY --from=golang /fortuner/fortuner /
 LABEL maintainer 61755280@qq.com
-EXPOSE 17006
+EXPOSE 17012
 ENTRYPOINT ["/fortuner"]
