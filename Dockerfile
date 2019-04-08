@@ -11,6 +11,7 @@ COPY . .
 RUN make
 
 FROM alpine:3.6
+RUN mkdir -p /usr/local/fortuner/rules/
 COPY --from=golang /fortuner/fortuner /
 LABEL maintainer 61755280@qq.com
 EXPOSE 17012
