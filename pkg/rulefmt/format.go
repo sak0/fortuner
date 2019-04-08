@@ -40,7 +40,7 @@ type RuleError struct {
 func WrapRuleError(err error, msg string, msgArgs ...interface{})*RuleError {
 	return &RuleError{
 		Inner:err,
-		Msg:fmt.Sprintf(msg, msgArgs),
+		Msg:fmt.Sprintf(msg, msgArgs...),
 		Stack:string(debug.Stack()),
 		Misc:make(map[string]interface{}),
 	}
