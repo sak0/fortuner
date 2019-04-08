@@ -8,8 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/signal"
-	//_ "net/http/pprof"
+		//_ "net/http/pprof"
 
 	"github.com/fsnotify/fsnotify"
 	"golang.org/x/time/rate"
@@ -18,6 +17,7 @@ import (
 	"github.com/sak0/fortuner/pkg/notifier"
 	"github.com/sak0/fortuner/pkg/utils"
 
+	"os/signal"
 )
 
 var (
@@ -92,13 +92,6 @@ func main() {
 	ruleManager.Update()
 
 	go func() {
-		stopCh := make(chan os.Signal)
-		signal.Notify(stopCh, os.Kill, os.Interrupt)
-		<-stopCh
-		close(done)
-	}()
-
-	go func() {
 		for {
 			select {
 			case <-done:
@@ -139,8 +132,15 @@ func main() {
 		IdleTimeout: 60 * time.Second,
 		Handler:h,
 	}
-
 	srv.ListenAndServe()
+
+	go func() {
+		stopCh := make(chan os.Signal)
+		signal.Notify(stopCh, os.Kill, os.Interrupt)
+		<-stopCh
+		close(done)
+		srv.Close()
+	}()
 }
 
 type sender interface {
