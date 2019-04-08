@@ -49,17 +49,17 @@ func (h MyHandle)ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func init() {
-	flag.StringVar(&ruleFilesPath, "--rule-files-path",
-		"C:/Users/ThinkPad/go/src/github.com/sak0/fortuner/example/rules/", "path of rule files.")
-	flag.StringVar(&alertManagerAddr, "--alertmanager-addr",
+	flag.StringVar(&ruleFilesPath, "rule-files-path",
+		"/usr/local/fortuner/rules/", "path of rule files.")
+	flag.StringVar(&alertManagerAddr, "alertmanager-addr",
 		"http://10.211.160.34:9093", "alertManager webhook url")
-	flag.StringVar(&alertExtUrl, "--alert-ext-url",
-		"dev.yonghui.cn", "external url for alert infomation")
-	flag.DurationVar(&evaluationInterval, "--evaluation-interval",
+	flag.StringVar(&alertExtUrl, "alert-ext-url",
+		"dev.yonghui.cn", "external url for alert information")
+	flag.DurationVar(&evaluationInterval, "evaluation-interval",
 		60 * time.Second, "interval for alert rule evaluation.")
-	flag.DurationVar(&updateInterval, "--update-interval",
+	flag.DurationVar(&updateInterval, "update-interval",
 		10 * time.Second, "interval for update rules.")
-	flag.DurationVar(&alertResendDelay, "--alert-resend-delay",
+	flag.DurationVar(&alertResendDelay, "alert-resend-delay",
 		1 * time.Second, "min delay for one alert resend.")
 	flag.Parse()
 
@@ -133,7 +133,7 @@ func main() {
 		limiter:rate.NewLimiter(limit, 1),
 	}
 	srv := http.Server{
-		Addr: "0.0.0.0:6060",
+		Addr: "0.0.0.0:17001",
 		ReadTimeout: 30 * time.Second,
 		WriteTimeout: 30 * time.Second,
 		IdleTimeout: 60 * time.Second,
