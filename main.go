@@ -18,6 +18,7 @@ import (
 	"github.com/sak0/fortuner/pkg/utils"
 
 	"os/signal"
+	"github.com/toolkits/net"
 )
 
 var (
@@ -133,6 +134,9 @@ func main() {
 		Handler:h,
 	}
 	srv.ListenAndServe()
+
+
+	net.IntranetIP()
 
 	go func() {
 		stopCh := make(chan os.Signal)

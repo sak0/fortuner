@@ -38,6 +38,8 @@ func (g *Group)Run() {
 	tick := time.NewTicker(g.interval)
 	defer tick.Stop()
 
+	g.Eval(time.Now())
+
 	for {
 		select {
 		case <-g.done:
@@ -122,7 +124,7 @@ func (g *Group)Eval(ts time.Time) {
 
 func NewGroup(opts ManagerOpts, groupName string, fileName string, rules []Rule)*Group {
 	return &Group{
-		interval:defaultInterval,
+		interval:opts.Interval,
 		name:groupName,
 		file:fileName,
 		rules:rules,
@@ -192,13 +194,17 @@ func (m *RuleManager)LoadGroups(fileNames []string) (map[string]*Group, error) {
 		}
 		for _, grp := range groups.Groups {
 			var rules []Rule
+			if grp.Interval == 0 {
+				grp.Interval = m.opts.Interval
+			}
+
 			for _, rule := range grp.Rules {
 				if err := rule.Validate(); err != nil {
 					return nil, err
 				}
 				switch rule.Type {
 				case rulefmt.RuleTypes[rulefmt.TypeFrequency]:
-					newRule := NewFrequencyRule(rule)
+					newRule := NewFrequencyRule(rule, grp.Interval)
 					rules = append(rules, newRule)
 				default:
 					log.Printf("Unsupport rule type: %s\n", rule.Type)

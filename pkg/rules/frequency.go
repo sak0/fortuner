@@ -12,6 +12,11 @@ import (
 	"github.com/sak0/fortuner/pkg/query"
 	)
 
+const (
+	SLOWQUERYTOOK = 2000
+	SLOWQUERYINTERVAL = 2 * time.Minute
+)
+
 func elasticEndpoints(addr string) []string {
 	var addrs []string
 	for _, addr := range strings.Split(addr, ",") {
@@ -47,16 +52,54 @@ func arrayIn(arr []string, item string)bool{
 }
 
 type FrequencyRule struct {
-	mtx		sync.Mutex
-	rule 	rulefmt.Rule
-	active 	map[uint64]*Alert
+	mtx				sync.Mutex
+	rule 			rulefmt.Rule
+	active 			map[uint64]*Alert
+	interval 		time.Duration
+	origInterval 	time.Duration
+	lastEval    	time.Time
 }
 
 func (r *FrequencyRule)Name() string {
 	return r.rule.Alert
 }
 
+func (r *FrequencyRule)needEval(ts time.Time) bool {
+	return ts.After(r.lastEval.Add(r.interval))
+}
+
+func (r *FrequencyRule)updateEvalTime(ts time.Time) {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+
+	r.lastEval = ts
+}
+
+func (r *FrequencyRule)dynamicQueryInterval(lastTook int64) {
+	r.mtx.Lock()
+	defer r.mtx.Unlock()
+
+	if lastTook > SLOWQUERYTOOK {
+		r.origInterval = r.interval
+		r.interval = SLOWQUERYINTERVAL
+		log.Printf("Rule %s query too slow, slow donw query interval to %v\n", r.rule.Alert, r.interval)
+	} else {
+		if r.origInterval != 0 {
+			r.interval = r.origInterval
+		}
+	}
+}
+
 func (r *FrequencyRule)Eval(ctx context.Context, ts time.Time) error {
+	if r.needEval(ts) {
+		log.Printf("eval time check: %v is beyond eval time line: %v + %v", ts, r.lastEval, r.interval)
+		defer r.updateEvalTime(ts)
+	} else {
+		log.Printf("eval time check: %v is behind eval time line: %v + %v. skip eval this time.",
+			ts, r.lastEval, r.interval)
+		return nil
+	}
+
 	var err error
 	client, err := query.CreateElasticSearchClient(elasticEndpoints(r.rule.ElasticHosts))
 	if err != nil {
@@ -103,6 +146,7 @@ func (r *FrequencyRule)Eval(ctx context.Context, ts time.Time) error {
 				FiredAt:ts,
 			}
 		}
+		r.dynamicQueryInterval(result.Took)
 	}
 
 	return nil
@@ -131,10 +175,11 @@ func (r *FrequencyRule) currentAlerts() []*Alert {
 	return alerts
 }
 
-func NewFrequencyRule(rule rulefmt.Rule) *FrequencyRule {
+func NewFrequencyRule(rule rulefmt.Rule, interval time.Duration) *FrequencyRule {
 	return &FrequencyRule{
 		mtx:sync.Mutex{},
 		rule:rule,
 		active:make(map[uint64]*Alert),
+		interval:interval,
 	}
 }
