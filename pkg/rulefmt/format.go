@@ -1,12 +1,12 @@
 package rulefmt
 
 import (
-	"log"
 	"time"
 	"io/ioutil"
 	"fmt"
 	"runtime/debug"
 	"gopkg.in/yaml.v2"
+	"github.com/golang/glog"
 )
 
 const (
@@ -47,7 +47,7 @@ func WrapRuleError(err error, msg string, msgArgs ...interface{})*RuleError {
 }
 
 func HandleError(err error, msg string){
-	log.Printf("%v", err)
+	glog.V(2).Infof("%v", err)
 	fmt.Printf("%s", msg)
 }
 

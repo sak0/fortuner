@@ -8,6 +8,7 @@ import (
 	"time"
 	"github.com/olivere/elastic"
 	"github.com/afex/hystrix-go/hystrix"
+	"github.com/golang/glog"
 )
 
 const (
@@ -55,7 +56,7 @@ func (es *ElasticClient)GetHitsForNotInListWithHystrix(startTime time.Time,
 			Took:whiteListResult.TookInMillis,
 		}
 		resultCh<- result
-		log.Printf("BlackList count: %d take %v millisecond\n",
+		glog.V(3).Infof("BlackList count: %d take %v millisecond\n",
 			whiteListResult.TotalHits(), whiteListResult.TookInMillis)
 		return nil
 	}, nil)
@@ -91,7 +92,7 @@ func (es *ElasticClient)GetHitsForInListWithHystrix(startTime time.Time,
 			Took:whiteListResult.TookInMillis,
 		}
 		resultCh<- result
-		log.Printf("WhiteList count: %d take %v millisecond\n",
+		glog.V(3).Infof("WhiteList count: %d take %v millisecond\n",
 			whiteListResult.TotalHits(), whiteListResult.TookInMillis)
 		return nil
 	}, nil)
@@ -123,7 +124,7 @@ func (es *ElasticClient)GetHitsForQueryStringWithHystrix(startTime time.Time,
 		if err != nil {
 			return err
 		}
-		log.Printf("msgWildcardQuery count: %d take %v milliseconds.\n",
+		glog.V(3).Infof("msgWildcardQuery count: %d take %v milliseconds.\n",
 			msgWildcardResult.TotalHits(), msgWildcardResult.TookInMillis)
 		result := &QueryHitResult{
 			Hits:msgWildcardResult.TotalHits(),
@@ -150,7 +151,7 @@ func (es *ElasticClient)GetHitsForQueryString(startTime time.Time, indexName str
 	if err != nil {
 		return 0, err
 	}
-	log.Printf("msgWildcardQuery count: %d take %v milliseconds.\n",
+	glog.V(3).Infof("msgWildcardQuery count: %d take %v milliseconds.\n",
 		msgWildcardResult.TotalHits(), msgWildcardResult.TookInMillis)
 
 	return msgWildcardResult.TotalHits(), nil
@@ -178,7 +179,7 @@ func (es *ElasticClient)GetHitsForItemWithHystrix(startTime time.Time,
 		if err != nil {
 			return err
 		}
-		log.Printf("GetHitsForItem count: %d take %v millisecond\n",
+		glog.V(3).Infof("GetHitsForItem count: %d take %v millisecond\n",
 			bQueryResult.TotalHits(), bQueryResult.TookInMillis)
 
 		result := &QueryHitResult{
@@ -205,7 +206,7 @@ func (es *ElasticClient)GetHitsForItem(startTime time.Time, indexName string, ke
 	if err != nil {
 		return 0, err
 	}
-	log.Printf("GetHitsForItem count: %d take %v millisecond\n", bQueryResult.TotalHits(), bQueryResult.TookInMillis)
+	glog.V(3).Infof("GetHitsForItem count: %d take %v millisecond\n", bQueryResult.TotalHits(), bQueryResult.TookInMillis)
 	return bQueryResult.TotalHits(), nil
 }
 

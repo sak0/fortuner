@@ -3,12 +3,12 @@ package notifier
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"bytes"
 	"time"
 	"golang.org/x/time/rate"
 	"github.com/sak0/fortuner/pkg/utils"
+	"github.com/golang/glog"
 )
 
 var userAgent = fmt.Sprintf("Fortuner/%s", "0.1")
@@ -44,7 +44,7 @@ func (a *AlertManager)Send(ctx context.Context, b []byte) error {
 	req.Header.Set("Content-Type", contentTypeJSON)
 	resp, err := a.do(ctx, a.client, req)
 	if err != nil {
-		log.Printf("request failed: %v\n", resp)
+		glog.Errorf("request failed: %v\n", resp)
 		return err
 	}
 	defer resp.Body.Close()

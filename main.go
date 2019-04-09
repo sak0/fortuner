@@ -5,10 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"time"
-	"log"
 	"net/http"
 	"os"
-		//_ "net/http/pprof"
+	//_ "net/http/pprof"
 
 	"github.com/fsnotify/fsnotify"
 	"golang.org/x/time/rate"
@@ -18,7 +17,7 @@ import (
 	"github.com/sak0/fortuner/pkg/utils"
 
 	"os/signal"
-	"github.com/toolkits/net"
+	"github.com/golang/glog"
 )
 
 var (
@@ -66,15 +65,9 @@ func init() {
 	flag.DurationVar(&queryTailTime, "query-tail-time",
 		30 * time.Minute, "default time range for tail of log.")
 	flag.Parse()
-
-	log.SetOutput(os.Stdout)
-	log.SetFlags(log.LUTC|log.Ltime)
 }
 
 func main() {
-	log.Printf("%v\n", queryTailTime)
-
-
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		panic(err)
@@ -108,7 +101,7 @@ func main() {
 				if !ok {
 					return
 				}
-				log.Printf("Receive fsnotify events for file %s", ev.Name)
+			    glog.V(2).Infof("Receive fsnotify events for file %s", ev.Name)
 				ruleManager.SetNeedUpdate()
 			}
 		}
@@ -141,9 +134,6 @@ func main() {
 		Handler:h,
 	}
 	srv.ListenAndServe()
-
-
-	net.IntranetIP()
 
 	go func() {
 		stopCh := make(chan os.Signal)

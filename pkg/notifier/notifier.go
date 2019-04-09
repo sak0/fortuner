@@ -3,9 +3,9 @@ package notifier
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"sync"
 	"time"
+	"github.com/golang/glog"
 )
 
 const MaxNumPerBatch = 64
@@ -33,7 +33,7 @@ func (m *NotifyManager)Send(alerts ...*Alert) {
 	oldLen := len(m.queue)
 	m.queue = append(m.queue, alerts...)
 	m.more<- struct{}{}
-	log.Printf("Processing alerts %v, QueueLength [%d] -> [%d]\n", alerts, oldLen, len(m.queue))
+	glog.V(2).Infof("Processing alerts %v, QueueLength [%d] -> [%d]\n", alerts, oldLen, len(m.queue))
 }
 
 func (m *NotifyManager)Run() {
@@ -65,7 +65,7 @@ func (m *NotifyManager)Consume() []*Alert {
 		m.queue = m.queue[:0]
 	}
 
-	log.Printf("Consume alerts: %v. QueueLength [%d] -> [%d]\n", alertsSend, queueLen, len(m.queue))
+	glog.V(2).Infof("Consume alerts: %v. QueueLength [%d] -> [%d]\n", alertsSend, queueLen, len(m.queue))
 	return alertsSend
 }
 
@@ -83,7 +83,7 @@ func (m *NotifyManager)sendOne(alert *Alert) error {
 func (m *NotifyManager)sendAll(alerts ...*Alert) {
 	for _, alert := range alerts {
 		if err := m.sendOne(alert); err != nil {
-			log.Printf("Send alert failed: %v\n", err)
+			glog.Errorf("Send alert failed: %v\n", err)
 			continue
 		}
 	}

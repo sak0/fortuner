@@ -5,10 +5,10 @@ import (
 	"time"
 	"sync"
 	"fmt"
-	"log"
 
 	"github.com/sak0/fortuner/pkg/rulefmt"
 	"github.com/sak0/fortuner/pkg/query"
+	"github.com/golang/glog"
 )
 
 type WhiteListRule struct {
@@ -54,7 +54,7 @@ func (r *WhiteListRule)UnLock() {
 }
 
 func (r *WhiteListRule)SlowdownEvalInterval(slowInterval time.Duration) {
-	log.Printf("Rule %s query too slow, slow donw query interval to %v\n", r.rule.Alert, r.interval)
+	glog.V(2).Infof("Rule %s query too slow, slow donw query interval to %v\n", r.rule.Alert, r.interval)
 	r.origInterval = r.interval
 	r.interval = slowInterval
 }
@@ -110,7 +110,7 @@ func (r *WhiteListRule)Eval(ctx context.Context, ts time.Time) error {
 			break
 		}
 		if int(result.Hits) >= 1 {
-			log.Printf("Rule %s query hit %d > threshold %d, trigger an alert.", r.Name(), result.Hits, 1)
+			glog.V(2).Infof("Rule %s query hit %d > threshold %d, trigger an alert.", r.Name(), result.Hits, 1)
 			//TODO: support one alert rule for multi indices
 			r.active[0] = &Alert{
 				State:StateFiring,

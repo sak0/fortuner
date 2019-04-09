@@ -2,8 +2,8 @@ package rules
 
 import (
 	"context"
-	"log"
 	"time"
+	"github.com/golang/glog"
 )
 
 type AlertState int
@@ -53,14 +53,14 @@ func dynamicQueryInterval(rule Rule, lastTook int64) {
 
 func needEval(rule Rule, ts time.Time) bool {
 	if ts.After(rule.LastEval().Add(rule.Interval())) {
-		log.Printf("%s\t interval check: %v beyond eval time line: %v + %v",
+		glog.V(3).Infof("%s\t interval check: %v beyond eval time line: %v + %v",
 			rule.Name(),
 			ts.Format("2006-01-02 03:04:05 PM"),
 			rule.LastEval().Format("2006-01-02 03:04:05 PM"),
 			rule.Interval())
 		return true
 	} else {
-		log.Printf("%s\t interval check: %v behind eval time line: %v + %v. skip eval this time.",
+		glog.V(3).Infof("%s\t interval check: %v behind eval time line: %v + %v. skip eval this time.",
 			rule.Name(),
 			ts.Format("2006-01-02 03:04:05 PM"),
 			rule.LastEval().Format("2006-01-02 03:04:05 PM"),

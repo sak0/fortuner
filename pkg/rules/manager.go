@@ -2,7 +2,6 @@ package rules
 
 import (
 	"context"
-	"log"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -10,6 +9,7 @@ import (
 	"time"
 
 	"github.com/sak0/fortuner/pkg/rulefmt"
+	"github.com/golang/glog"
 )
 
 var defaultInterval = 30 * time.Second
@@ -75,7 +75,7 @@ func (g *Group)Eval(ts time.Time) {
 					}
 					ar := in.(*Alert)
 					if ar.State == StatePending {
-						log.Printf("Do not send pending alert.")
+						glog.V(2).Infof("Do not send pending alert.")
 					}
 					if ar.ResolvedAt.After(ar.LastSentAt) {
 						outStream<- ar
@@ -85,7 +85,7 @@ func (g *Group)Eval(ts time.Time) {
 						outStream<- ar
 						return
 					}
-					log.Printf("Alert can not send: %#v", ar)
+					glog.V(2).Infof("Alert can not send: %#v", ar)
 				}
 			}
 		}()
@@ -101,7 +101,7 @@ func (g *Group)Eval(ts time.Time) {
 		ctx, cancel := context.WithCancel(g.opts.Ctx)
 		for _, rule := range g.rules {
 			if err := rule.Eval(g.opts.Ctx, time.Now()); err != nil {
-				log.Printf("rule %s eval failed: %v", rule.Name(), err)
+				glog.V(2).Infof("rule %s eval failed: %v", rule.Name(), err)
 				continue
 			}
 
@@ -211,7 +211,7 @@ func (m *RuleManager)LoadGroups(fileNames []string) (map[string]*Group, error) {
 					newRule := NewWhiteListRule(rule, grp.Interval, m.opts.TailTime)
 					rules = append(rules, newRule)
 				default:
-					log.Printf("Unsupport rule type: %s\n", rule.Type)
+					glog.V(2).Infof("Unsupport rule type: %s\n", rule.Type)
 					continue
 				}
 			}
@@ -238,7 +238,7 @@ func (m *RuleManager)Update(){
 		return nil
 	})
 	if err != nil {
-		log.Fatal(err)
+		glog.Fatalf("%v", err)
 	}
 
 	//for _, file := range m.opts.RulesFiles {
@@ -250,7 +250,7 @@ func (m *RuleManager)Update(){
 	//		files = append(files, f)
 	//	}
 	//}
-	log.Printf("[manager.go] files: %v\n", files)
+	glog.V(2).Infof("Rule files: %v\n", files)
 
 	newGroups, err := m.LoadGroups(files)
 	if err != nil {

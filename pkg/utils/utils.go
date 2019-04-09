@@ -1,11 +1,11 @@
 package utils
 
 import (
-	"log"
-	"time"
+		"time"
 	"golang.org/x/time/rate"
 	"runtime"
 	"runtime/pprof"
+	"github.com/golang/glog"
 )
 
 func Per(duration time.Duration, events int) rate.Limit {
@@ -22,5 +22,5 @@ func ConsumeMem() uint64 {
 func DoResourceMonitor() {
 	m := pprof.Lookup("goroutine")
 	memStats := ConsumeMem()
-	log.Printf("Resource monitor: [%d goroutines] [%.3f kb]", m.Count(), float64(memStats) / 1e3)
+	glog.V(3).Infof("Resource monitor: [%d goroutines] [%.3f kb]", m.Count(), float64(memStats) / 1e3)
 }

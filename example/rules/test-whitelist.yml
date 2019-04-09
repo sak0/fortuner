@@ -12,8 +12,10 @@ groups:
     labels:
       trigger_interval: 1m                                              #告警静默时间
     annotations:
-      ALARM_STRATEGY_ID: ef9dee3dcd9d4088b393831a494e97f4               #对应告警方式：mail, 短信...
-      alarm_type: log
-      alert_rule_uuid: fccabc10c23a472f9a0c0235c08becb6
-      tenant_id: "111122223333444da45555666677778888"
+      ALARM_STRATEGY_ID: 31a3f370ff5b460b8a8909353cddea68
+      alarm_content: 异常状态次数>3次
+      alarm_type: mysql_exporter
+      alarm_type_name: mysql_exporter
+      alert_rule_uuid: 4d30a00cc1474ed0ae529be61dc985fa
+      tenant_id: manager-tenant
       trigger_interval: "60"
