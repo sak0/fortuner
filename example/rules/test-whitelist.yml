@@ -1,0 +1,19 @@
+groups:
+- name: yonghui.cn
+  rules:
+  - alert: "testWhiteList-wwwfffggg"
+    index: index_5d2099805b024281_yhcloud_10000001_20190408
+    es_hosts: 10.214.153.12:9200,http://10.214.153.12:9200,http://10.214.153.12:9200
+    type: whitelist                                                     #规则类型
+    key: source                                                      #关注的key
+    whitelist:
+    - "/var/log/mes2"
+    - "/var/log/mes"                                                   #匹配的值
+    labels:
+      trigger_interval: 1m                                              #告警静默时间
+    annotations:
+      ALARM_STRATEGY_ID: ef9dee3dcd9d4088b393831a494e97f4               #对应告警方式：mail, 短信...
+      alarm_type: log
+      alert_rule_uuid: fccabc10c23a472f9a0c0235c08becb6
+      tenant_id: "111122223333444da45555666677778888"
+      trigger_interval: "60"

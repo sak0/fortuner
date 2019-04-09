@@ -2,56 +2,16 @@ package rules
 
 import (
 	"context"
+	"time"
+	"sync"
 	"fmt"
 	"log"
-	"strings"
-	"sync"
-	"time"
 
 	"github.com/sak0/fortuner/pkg/rulefmt"
 	"github.com/sak0/fortuner/pkg/query"
-	)
-
-const (
-	SLOWQUERYTOOK = 2000
-	SLOWQUERYINTERVAL = 2 * time.Minute
 )
 
-func elasticEndpoints(addr string) []string {
-	var addrs []string
-	for _, addr := range strings.Split(addr, ",") {
-		if !strings.HasPrefix(addr, "http://") {
-			addr = "http://" + addr
-		}
-		addrs = append(addrs, addr)
-	}
-	return addrs
-}
-
-func matchKey(sample map[string]string, filters map[string]string)bool {
-	for filterKey, filterValue := range filters {
-		sampleValue, ok := sample[filterKey]
-		if !ok {
-			return false
-		}
-		if sampleValue != filterValue {
-			return false
-		}
-	}
-
-	return true
-}
-
-func arrayIn(arr []string, item string)bool{
-	for _, v := range arr{
-		if v == item{
-			return true
-		}
-	}
-	return false
-}
-
-type FrequencyRule struct {
+type AnyRule struct {
 	mtx				sync.Mutex
 	rule 			rulefmt.Rule
 	active 			map[uint64]*Alert
@@ -60,46 +20,46 @@ type FrequencyRule struct {
 	lastEval    	time.Time
 }
 
-func (r *FrequencyRule)Name() string {
+func (r *AnyRule)Name() string {
 	return r.rule.Alert
 }
 
-func (r *FrequencyRule)LastEval() time.Time {
+func (r *AnyRule)LastEval() time.Time {
 	return r.lastEval
 }
 
-func (r *FrequencyRule)Interval() time.Duration {
+func (r *AnyRule)Interval() time.Duration {
 	return r.interval
 }
 
-func (r *FrequencyRule)updateEvalTime(ts time.Time) {
+func (r *AnyRule)updateEvalTime(ts time.Time) {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 
 	r.lastEval = ts
 }
 
-func (r *FrequencyRule)Lock() {
+func (r *AnyRule)Lock() {
 	r.mtx.Lock()
 }
 
-func (r *FrequencyRule)UnLock() {
+func (r *AnyRule)UnLock() {
 	r.mtx.Unlock()
 }
 
-func (r *FrequencyRule)SlowdownEvalInterval(slowInterval time.Duration) {
+func (r *AnyRule)SlowdownEvalInterval(slowInterval time.Duration) {
 	log.Printf("Rule %s query too slow, slow donw query interval to %v\n", r.rule.Alert, r.interval)
 	r.origInterval = r.interval
 	r.interval = slowInterval
 }
 
-func (r *FrequencyRule)RestoreEvalInterval() {
+func (r *AnyRule)RestoreEvalInterval() {
 	if r.origInterval != 0 {
 		r.interval = r.origInterval
 	}
 }
 
-func (r *FrequencyRule)Eval(ctx context.Context, ts time.Time) error {
+func (r *AnyRule)Eval(ctx context.Context, ts time.Time) error {
 	if !needEval(r, ts) {
 		return nil
 	}
@@ -140,8 +100,8 @@ func (r *FrequencyRule)Eval(ctx context.Context, ts time.Time) error {
 		if !ok {
 			break
 		}
-		if int(result.Hits) >= r.rule.NumEvents {
-			log.Printf("Rule %s query hit %d > threshold %d, trigger an alert.", r.Name(), result.Hits, r.rule.NumEvents)
+		if int(result.Hits) >= 1 {
+			log.Printf("Rule %s query hit %d > threshold %d, trigger an alert.", r.Name(), result.Hits, 1)
 			//TODO: support one alert rule for multi indecis
 			r.active[0] = &Alert{
 				State:StateFiring,
@@ -156,7 +116,7 @@ func (r *FrequencyRule)Eval(ctx context.Context, ts time.Time) error {
 	return nil
 }
 
-func (r *FrequencyRule) ActiveAlerts() []*Alert {
+func (r *AnyRule) ActiveAlerts() []*Alert {
 	var res []*Alert
 	for _, a := range r.currentAlerts() {
 		if a.ResolvedAt.IsZero() {
@@ -166,7 +126,7 @@ func (r *FrequencyRule) ActiveAlerts() []*Alert {
 	return res
 }
 
-func (r *FrequencyRule) currentAlerts() []*Alert {
+func (r *AnyRule) currentAlerts() []*Alert {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 
@@ -179,8 +139,8 @@ func (r *FrequencyRule) currentAlerts() []*Alert {
 	return alerts
 }
 
-func NewFrequencyRule(rule rulefmt.Rule, interval time.Duration) *FrequencyRule {
-	return &FrequencyRule{
+func NewAnyRule(rule rulefmt.Rule, interval time.Duration) *AnyRule {
+	return &AnyRule{
 		mtx:sync.Mutex{},
 		rule:rule,
 		active:make(map[uint64]*Alert),

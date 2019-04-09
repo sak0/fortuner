@@ -55,7 +55,6 @@ type RuleGroups struct {
 	Groups	[]RuleGroup 	`yaml:"groups"`
 }
 
-// RuleGroup is a list of sequentially evaluated recording and alerting rules.
 type RuleGroup struct {
 	Name     string         `yaml:"name"`
 	Interval time.Duration	`yaml:"interval,omitempty"`
@@ -72,23 +71,27 @@ type RuleFilter struct {
 	Query   RuleFilterQuery	`yaml:"query,omitempty"`
 	Term	RuleFilterTerm 	`yaml:"term,omitempty"`
 }
+
 type Rule struct {
 	Alert 			string 				`yaml:"alert"`
 	Index			string				`yaml:"index"`
 	ElasticHosts	string				`yaml:"es_hosts"`
 	Type			string				`yaml:"type"`
-	Filter			[]RuleFilter		`yaml:"filter"`
+	Key 			string  			`yaml:"key,omitempty"`
+	WhiteList 		[]interface{}		`yaml:"whitelist,omitempty"`
+	BlackList 		[]interface{}		`yaml:"blacklist,omitempty"`
+	Filter			[]RuleFilter		`yaml:"filter,omitempty"`
 	NumEvents		int					`yaml:"num_events,omitempty"`
 	TimeFrame 		time.Duration		`yaml:"time_frame"`
 	Labels			map[string]string	`yaml:"labels,omitempty"`
 	Annotations		map[string]string	`yaml:"annotations,omitempty"`
 }
 
-func (r *Rule)Validate()error {
+func (r *Rule)Validate() error {
 	return nil
 }
 
-func Parse(content []byte)(*RuleGroups, error) {
+func Parse(content []byte) (*RuleGroups, error) {
 	var groups RuleGroups
 	if err := yaml.UnmarshalStrict(content, &groups); err != nil {
 		return nil, LowRuleError{WrapRuleError(err, "Unmarshal File failed: %v", err)}
@@ -97,7 +100,7 @@ func Parse(content []byte)(*RuleGroups, error) {
 	return &groups, nil
 }
 
-func ParseFile(fileName string)(*RuleGroups, error) {
+func ParseFile(fileName string) (*RuleGroups, error) {
 	b, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		return nil, LowRuleError{WrapRuleError(err, "Open File %s failed.", fileName)}

@@ -28,6 +28,7 @@ var (
 	evaluationInterval	time.Duration
 	updateInterval 		time.Duration
 	alertResendDelay	time.Duration
+	queryTailTime 		time.Duration
 )
 
 type MyHandle struct{
@@ -62,6 +63,8 @@ func init() {
 		10 * time.Second, "interval for update rules.")
 	flag.DurationVar(&alertResendDelay, "alert-resend-delay",
 		1 * time.Second, "min delay for one alert resend.")
+	flag.DurationVar(&queryTailTime, "query-tail-time",
+		30 * time.Minute, "default time range for tail of log.")
 	flag.Parse()
 
 	log.SetOutput(os.Stdout)
@@ -69,6 +72,9 @@ func init() {
 }
 
 func main() {
+	log.Printf("%v\n", queryTailTime)
+
+
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		panic(err)
@@ -89,6 +95,7 @@ func main() {
 		NotifyFunc:sendAlerts(notifierManager, alertExtUrl),
 		Ctx:ctx,
 		ResendDelay:alertResendDelay,
+		TailTime:queryTailTime,
 	})
 	ruleManager.Update()
 

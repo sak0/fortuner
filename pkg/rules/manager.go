@@ -1,26 +1,20 @@
 package rules
 
 import (
+	"context"
 	"log"
 	"net/url"
-	"context"
-	"time"
+	"os"
 	"path/filepath"
 	"sync"
+	"time"
 
 	"github.com/sak0/fortuner/pkg/rulefmt"
-	"os"
 )
 
 var defaultInterval = 30 * time.Second
 
 type NotifyFunc func(ctx context.Context, alerts ...*Alert)
-
-type Rule interface {
-	ActiveAlerts() []*Alert
-	Eval(ctx context.Context, time time.Time)error
-	Name()string
-}
 
 type Group struct {
 	name     	string
@@ -140,6 +134,7 @@ type ManagerOpts struct {
 	NotifyFunc		NotifyFunc
 	Interval 		time.Duration
 	ResendDelay		time.Duration
+	TailTime 		time.Duration
 }
 type RuleManager struct {
 	mtx 		sync.RWMutex
@@ -205,6 +200,15 @@ func (m *RuleManager)LoadGroups(fileNames []string) (map[string]*Group, error) {
 				switch rule.Type {
 				case rulefmt.RuleTypes[rulefmt.TypeFrequency]:
 					newRule := NewFrequencyRule(rule, grp.Interval)
+					rules = append(rules, newRule)
+				case rulefmt.RuleTypes[rulefmt.TypeAny]:
+					newRule := NewAnyRule(rule, grp.Interval)
+					rules = append(rules, newRule)
+				case rulefmt.RuleTypes[rulefmt.TypeBlackList]:
+					newRule := NewWhiteListRule(rule, grp.Interval, m.opts.TailTime)
+					rules = append(rules, newRule)
+				case rulefmt.RuleTypes[rulefmt.TypeWhiteList]:
+					newRule := NewWhiteListRule(rule, grp.Interval, m.opts.TailTime)
 					rules = append(rules, newRule)
 				default:
 					log.Printf("Unsupport rule type: %s\n", rule.Type)
