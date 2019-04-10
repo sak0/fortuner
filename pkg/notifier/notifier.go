@@ -101,10 +101,10 @@ func (m *NotifyManager)handleAlerts() {
 	}
 }
 
-func NewManager(done chan interface{}, amAddr string) *NotifyManager {
+func NewManager(done chan interface{}, amAddr string, isDistribution bool) *NotifyManager {
 	return &NotifyManager{
 		more:make(chan interface{}),
 		done:done,
-		am:NewAlertManager(amAddr),
+		am:NewAlertManager(amAddr, isDistribution),
 	}
 }

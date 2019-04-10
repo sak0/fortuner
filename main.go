@@ -28,6 +28,7 @@ var (
 	updateInterval 		time.Duration
 	alertResendDelay	time.Duration
 	queryTailTime 		time.Duration
+	isDistribution 		bool
 )
 
 type MyHandle struct{
@@ -64,6 +65,8 @@ func init() {
 		1 * time.Second, "min delay for one alert resend.")
 	flag.DurationVar(&queryTailTime, "query-tail-time",
 		30 * time.Minute, "default time range for tail of log.")
+	flag.BoolVar(&isDistribution, "distribution",
+		false, "is fortuner distribution deployed")
 	flag.Parse()
 }
 
@@ -78,7 +81,7 @@ func main() {
 
 	done := make(chan interface{})
 	defer close(done)
-	notifierManager := notifier.NewManager(done, alertManagerAddr)
+	notifierManager := notifier.NewManager(done, alertManagerAddr, isDistribution)
 	go notifierManager.Run()
 
 	ctx := context.Background()

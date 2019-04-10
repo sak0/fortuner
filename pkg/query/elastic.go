@@ -56,7 +56,7 @@ func (es *ElasticClient)GetHitsForNotInListWithHystrix(startTime time.Time,
 			Took:whiteListResult.TookInMillis,
 		}
 		resultCh<- result
-		glog.V(3).Infof("BlackList count: %d take %v millisecond\n",
+		glog.V(3).Infof("WhiteList count: %d take %v millisecond\n",
 			whiteListResult.TotalHits(), whiteListResult.TookInMillis)
 		return nil
 	}, nil)
@@ -92,7 +92,7 @@ func (es *ElasticClient)GetHitsForInListWithHystrix(startTime time.Time,
 			Took:whiteListResult.TookInMillis,
 		}
 		resultCh<- result
-		glog.V(3).Infof("WhiteList count: %d take %v millisecond\n",
+		glog.V(3).Infof("BlackList count: %d take %v millisecond\n",
 			whiteListResult.TotalHits(), whiteListResult.TookInMillis)
 		return nil
 	}, nil)

@@ -7,8 +7,9 @@ import (
 	"bytes"
 	"time"
 	"golang.org/x/time/rate"
-	"github.com/sak0/fortuner/pkg/utils"
 	"github.com/golang/glog"
+	"github.com/sak0/fortuner/pkg/utils"
+	myrate "github.com/sak0/fortuner/pkg/rate"
 )
 
 var userAgent = fmt.Sprintf("Fortuner/%s", "0.1")
@@ -17,10 +18,16 @@ const (
 	pushURL 		= "/api/v1/alerts"
 )
 
+type Limiter interface {
+	//Allow() bool
+	//AllowN(now time.Time, n int) bool
+	Wait(ctx context.Context) error
+}
+
 type AlertManager struct {
 	Endpoint 	string
 	client 		*http.Client
-	limiter		*rate.Limiter
+	limiter		Limiter
 }
 
 func (a *AlertManager)do(ctx context.Context, client *http.Client, req *http.Request) (*http.Response, error) {
@@ -31,7 +38,8 @@ func (a *AlertManager)do(ctx context.Context, client *http.Client, req *http.Req
 }
 
 func (a *AlertManager)Send(ctx context.Context, b []byte) error {
-	err := a.limiter.Wait(ctx)
+	newCtx, _ := context.WithTimeout(ctx, 10 * time.Second)
+	err := a.limiter.Wait(newCtx)
 	if err != nil {
 		return err
 	}
@@ -55,7 +63,7 @@ func (a *AlertManager)Send(ctx context.Context, b []byte) error {
 	return err
 }
 
-func NewAlertManager(addr string) *AlertManager {
+func NewAlertManager(addr string, distribution bool) *AlertManager {
 	tr := &http.Transport{
 		MaxIdleConns:       10,
 		IdleConnTimeout:    30 * time.Second,
@@ -67,11 +75,30 @@ func NewAlertManager(addr string) *AlertManager {
 	}
 
 	// Rate limit for call AlertManager API
+
 	limit := utils.Per(1 * time.Second, 5)
+	var limiter Limiter
+	var err error
+	Loop:
+		for {
+			if distribution {
+				limit := float64(1/5)
+				limiter, err = myrate.NewLimiter(limit, 10)
+				if err != nil {
+					glog.Errorf("Get distribution rate limiter %v failed: %v, use local rate limit", err, limiter)
+					distribution = false
+				} else {
+					break Loop
+				}
+			} else {
+				limiter = rate.NewLimiter(limit, 10)
+				break Loop
+			}
+		}
 
 	return &AlertManager{
 		Endpoint:addr + pushURL,
 		client:client,
-		limiter:rate.NewLimiter(limit, 10),
+		limiter:limiter,
 	}
 }
