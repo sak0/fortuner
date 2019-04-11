@@ -2,13 +2,12 @@ groups:
 - name: yonghui.cn
   rules:
   - alert: "testWhiteList-wwwfffggg"
-    index: index_5d2099805b024281_yhcloud_10000001_20190408
-    es_hosts: 10.214.153.12:9200,http://10.214.153.12:9200,http://10.214.153.12:9200
-    type: blacklist                                                     #规则类型
+    index: index_23ec1429c0554dd8_yhcloud_10000001_20190411
+    es_hosts: http://10.216.158.11:9200
+    type: whitelist                                                     #规则类型
     key: source                                                      #关注的key
-    blacklist:
-    - "/var/log/messages1"
-    - "/var/log/mes"                                                   #匹配的值
+    whitelist:
+    - "/root/test1.log"                                                  #匹配的值
     labels:
       trigger_interval: 1m                                              #告警静默时间
     annotations:

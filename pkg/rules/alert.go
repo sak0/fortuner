@@ -15,6 +15,7 @@ const (
 
 type Alert struct {
 	State 		AlertState
+	Name 		string
 
 	Labels      map[string]string
 	Annotations map[string]string

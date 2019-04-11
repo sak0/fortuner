@@ -157,6 +157,7 @@ func sendAlerts(s sender, externalURL string) rules.NotifyFunc {
 
 		for _, alert := range alerts {
 			a := &notifier.Alert{
+				Name:         alert.Name,
 				StartsAt:     alert.FiredAt,
 				Labels:       alert.Labels,
 				Annotations:  alert.Annotations,

@@ -37,14 +37,14 @@ func (a *AlertManager)do(ctx context.Context, client *http.Client, req *http.Req
 	return client.Do(req.WithContext(ctx))
 }
 
-func (a *AlertManager)Send(ctx context.Context, b []byte) error {
+func (a *AlertManager)Send(ctx context.Context, b []byte, alertName string) error {
 	newCtx, _ := context.WithTimeout(ctx, 10 * time.Second)
 	err := a.limiter.Wait(newCtx)
 	if err != nil {
 		return err
 	}
 
-	glog.V(3).Infof("Send alert to AlertManager %s.\n", a.Endpoint)
+	glog.V(3).Infof("Send alert %s to AlertManager %s.\n", alertName, a.Endpoint)
 
 	req, err := http.NewRequest("POST", a.Endpoint, bytes.NewReader(b))
 	if err != nil {

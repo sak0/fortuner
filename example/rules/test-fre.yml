@@ -1,16 +1,16 @@
 groups:
 - name: yonghui.cn
   rules:
-  - alert: alert_wfg_ALERT_WFG
-    index: index_2570ca07782a4996_8166106f02fe423a_20190329
-    es_hosts: 10.214.153.12:9200,http://10.214.153.12:9200,http://10.214.153.12:9200
+  - alert: alert_frequency_wfgfg
+    index: index_23ec1429c0554dd8_yhcloud_10000001_20190411
+    es_hosts: http://10.216.158.11:9200
     type: frequency
     filter:
     - term:
         field: "source"
-        value: "/var/log/temptest/test1.log"
+        value: "/root/test.log"
     num_events: 50
-    time_frame: 240h
+    time_frame: 24h
     labels:
       trigger_interval: 1m
     annotations:

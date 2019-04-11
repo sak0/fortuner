@@ -11,6 +11,7 @@ import (
 const MaxNumPerBatch = 64
 
 type Alert struct {
+	Name            string              `json:"name"`
 	Labels 			map[string]string 	`json:"labels"`
 	Annotations 	map[string]string 	`json:"annotations"`
 	StartsAt    	time.Time 			`json:"startsAt,omitempty"`
@@ -30,9 +31,15 @@ type NotifyManager struct {
 func (m *NotifyManager)Send(alerts ...*Alert) {
 	//Send alerts to AlertManager
 	// TODO: Process length of queue
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
 	oldLen := len(m.queue)
 	m.queue = append(m.queue, alerts...)
-	m.more<- struct{}{}
+	select {
+	case m.more<- struct{}{}:
+	default:
+	}
 	glog.V(2).Infof("Processing alerts %v, QueueLength [%d] -> [%d]\n", alerts, oldLen, len(m.queue))
 }
 
@@ -58,6 +65,7 @@ func (m *NotifyManager)Consume() []*Alert {
 	queueLen := len(m.queue)
 
 	if queueLen > MaxNumPerBatch {
+		glog.V(2).Infof("notify queue length %d is large the threshold %d\n", queueLen, MaxNumPerBatch)
 		alertsSend = m.queue[:MaxNumPerBatch]
 		m.queue = m.queue[MaxNumPerBatch:]
 	} else {
@@ -77,7 +85,7 @@ func (m *NotifyManager)sendOne(alert *Alert) error {
 	}
 
 	ctx := context.Background()
-	return m.am.Send(ctx, b)
+	return m.am.Send(ctx, b, alert.Name)
 }
 
 func (m *NotifyManager)sendAll(alerts ...*Alert) {

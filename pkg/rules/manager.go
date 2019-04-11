@@ -31,6 +31,7 @@ func (g *Group)Stop() {
 func (g *Group)Run() {
 	tick := time.NewTicker(g.interval)
 	defer tick.Stop()
+	defer glog.V(2).Infof("Group %s goroutine exit.\n", g.name)
 
 	g.Eval(time.Now())
 

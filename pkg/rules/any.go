@@ -101,8 +101,9 @@ func (r *AnyRule)Eval(ctx context.Context, ts time.Time) error {
 		}
 		if int(result.Hits) >= 1 {
 			glog.V(2).Infof("Rule %s query hit %d > threshold %d, trigger an alert.", r.Name(), result.Hits, 1)
-			//TODO: support one alert rule for multi indecis
+			//TODO: support one alert rule for multi indices
 			r.active[0] = &Alert{
+				Name:r.rule.Alert,
 				State:StateFiring,
 				Labels:r.rule.Labels,
 				Annotations:r.rule.Annotations,
