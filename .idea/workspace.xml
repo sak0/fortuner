@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="da7ef15c-4845-46ef-b759-a423adf54ce7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/notifier/alertManager.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/notifier/alertManager.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/rate/rate.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/rate/rate.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/rate/redis.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/rate/redis.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -31,6 +28,7 @@
           <entry key="Dockerfile" value="2" />
           <entry key="Makefile" value="1" />
           <entry key="go" value="59" />
+          <entry key="md" value="1" />
           <entry key="mod" value="1" />
           <entry key="yml" value="10" />
         </counts>
@@ -39,19 +37,21 @@
         <counts>
           <entry key="DTD" value="1" />
           <entry key="Go" value="59" />
-          <entry key="PLAIN_TEXT" value="3" />
+          <entry key="PLAIN_TEXT" value="4" />
           <entry key="YAML" value="10" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="go" value="6235" />
+          <entry key="md" value="205" />
           <entry key="yml" value="53" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="Go" value="6235" />
+          <entry key="PLAIN_TEXT" value="205" />
           <entry key="YAML" value="53" />
         </counts>
       </usages-collector>
@@ -62,8 +62,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1080">
-              <caret line="48" column="39" selection-start-line="48" selection-start-column="39" selection-end-line="48" selection-end-column="39" />
+            <state relative-caret-position="1320">
+              <caret line="136" column="18" lean-forward="true" selection-start-line="136" selection-start-column="18" selection-end-line="136" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -113,11 +113,20 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pkg/rate/rate.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="257">
-              <caret line="52" column="23" lean-forward="true" selection-start-line="52" selection-start-column="23" selection-end-line="52" selection-end-column="23" />
+            <state relative-caret-position="240">
+              <caret line="21" selection-start-line="21" selection-end-line="21" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="233">
+              <caret line="48" column="8" lean-forward="true" selection-start-line="48" selection-start-column="8" selection-end-line="48" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -171,6 +180,7 @@
         <option value="$PROJECT_DIR$/pkg/notifier/alertManager.go" />
         <option value="$PROJECT_DIR$/pkg/rate/redis.go" />
         <option value="$PROJECT_DIR$/pkg/rate/rate.go" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -197,34 +207,6 @@
             <path>
               <item name="fortuner" type="b2602c69:ProjectViewProjectNode" />
               <item name="fortuner" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="fortuner" type="b2602c69:ProjectViewProjectNode" />
-              <item name="fortuner" type="462c0819:PsiDirectoryNode" />
-              <item name="example" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="fortuner" type="b2602c69:ProjectViewProjectNode" />
-              <item name="fortuner" type="462c0819:PsiDirectoryNode" />
-              <item name="example" type="462c0819:PsiDirectoryNode" />
-              <item name="rules" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="fortuner" type="b2602c69:ProjectViewProjectNode" />
-              <item name="fortuner" type="462c0819:PsiDirectoryNode" />
-              <item name="pkg" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="fortuner" type="b2602c69:ProjectViewProjectNode" />
-              <item name="fortuner" type="462c0819:PsiDirectoryNode" />
-              <item name="pkg" type="462c0819:PsiDirectoryNode" />
-              <item name="query" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="fortuner" type="b2602c69:ProjectViewProjectNode" />
-              <item name="fortuner" type="462c0819:PsiDirectoryNode" />
-              <item name="pkg" type="462c0819:PsiDirectoryNode" />
-              <item name="rate" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -290,7 +272,7 @@
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24963397" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24963397" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -473,13 +455,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1080">
-          <caret line="48" column="39" selection-start-line="48" selection-start-column="39" selection-end-line="48" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/pkg/utils/utils.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
@@ -501,6 +476,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/rate/rate.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="21" selection-start-line="21" selection-end-line="21" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/pkg/rate/redis.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="239">
@@ -508,10 +490,17 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/rate/rate.go">
+    <entry file="file://$PROJECT_DIR$/main.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="257">
-          <caret line="52" column="23" lean-forward="true" selection-start-line="52" selection-start-column="23" selection-end-line="52" selection-end-column="23" />
+        <state relative-caret-position="1320">
+          <caret line="136" column="18" lean-forward="true" selection-start-line="136" selection-start-column="18" selection-end-line="136" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="233">
+          <caret line="48" column="8" lean-forward="true" selection-start-line="48" selection-start-column="8" selection-end-line="48" selection-end-column="8" />
         </state>
       </provider>
     </entry>
