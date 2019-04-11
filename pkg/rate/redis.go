@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 	"github.com/FZambia/sentinel"
+	"github.com/golang/glog"
 )
 
 const (
@@ -23,32 +24,36 @@ const (
 )
 
 const rateScript = `
-local tokens_key = KEYS[1]
+local token_key = KEYS[1]
 local timestamp_key = KEYS[2]
 local rate = tonumber(ARGV[1])
 local capacity = tonumber(ARGV[2])
 local now = tonumber(ARGV[3])
 local requested = tonumber(ARGV[4])
-local fill_time = capacity/rate
-local ttl = math.floor(fill_time*2)
-local last_tokens = tonumber(redis.call("get", tokens_key))
-if last_tokens == nil then
-    last_tokens = capacity
+local fill_time = capacity / rate
+local ttl = math.floor(fill_time * 2)
+
+local last_free_tokens = tonumber(redis.call("get", token_key))
+if last_free_tokens == nil then
+    last_free_tokens = capacity
 end
+
 local last_refreshed = tonumber(redis.call("get", timestamp_key))
 if last_refreshed == nil then
     last_refreshed = 0
 end
-local time_delta = math.max(0, now-last_refreshed)
-local filled_tokens = math.min(capacity, last_tokens+(time_delta*rate))
-local allowed = (filled_tokens >= requested)
-local new_tokens = filled_tokens
+
+local delta = math.max(0, now - last_refreshed)
+local available_tokens = math.min(capacity, last_free_tokens + (delta*rate))
+local allowed = (available_tokens >= requested)
+local free_tokens = available_tokens
 if allowed then
-    new_tokens = filled_tokens - requested
+    free_tokens = available_tokens - requested
 end
-redis.call("setex", tokens_key, ttl, new_tokens)
+
+redis.call("setex", token_key, ttl, free_tokens)
 redis.call("setex", timestamp_key, ttl, now)
-return { allowed, new_tokens }
+return { allowed, free_tokens }
 `
 
 type RedisKeeper struct {
@@ -138,7 +143,16 @@ func (r *RedisKeeper)Eval(rate int, capacity int, request int) (bool, error) {
 	c := r.Pool.Get()
 	defer r.close(c)
 
+	if err :=r.Script.Load(c); err != nil {
+		glog.Errorf("redis EVAL load script failed: %v\n", err)
+		return false, err
+	}
+
+	glog.V(5).Infof("Eval Rate %d Capacity %d request %d\n", rate, capacity, request)
+
 	res, err := r.Script.Do(c, TokenKey, TimestampKey, rate, capacity, time.Now().Unix(), request)
+	glog.V(5).Infof("Debug info Eval: %v\n", res)
+
 	if err != nil {
 		return false, err
 	}
@@ -324,7 +338,7 @@ func getSinglePool()*redis.Pool{
 	return redisPool
 }
 
-func getSentinelPool()*redis.Pool{
+func getSentinelPool() (*redis.Pool) {
 	redisHosts := os.Getenv("REDIS_HOSTS")
 	redisAddrs := strings.Split(redisHosts, ",")
 	redisDbstr := os.Getenv("REDIS_DB")

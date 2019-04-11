@@ -28,12 +28,18 @@ func (l *Limiter)tryReserver (done <-chan interface{}) chan bool {
 			select {
 			case <-done:
 				return
-			default:
+			case <-time.After(500 * time.Millisecond):
 				res, err := l.redisCli.Eval(int(l.limit), l.burst, 1)
-				if err != nil {
-					outStream<- false
+				select {
+				case <-done:
+					return
+				default:
+					if err != nil {
+						outStream<- false
+					}
+					outStream<- res
 				}
-				outStream<- res
+
 			}
 		}
 	}()
@@ -42,8 +48,9 @@ func (l *Limiter)tryReserver (done <-chan interface{}) chan bool {
 }
 
 func (l *Limiter)Wait(ctx context.Context) error {
-	glog.V(2).Infof("MyRate wait debugInfo...")
+	glog.V(5).Infof("MyRate wait debugInfo...")
 	stopCh := make(chan interface{})
+	defer close(stopCh)
 	resultCh := l.tryReserver(stopCh)
 
 	for {

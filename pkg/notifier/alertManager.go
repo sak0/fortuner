@@ -44,6 +44,8 @@ func (a *AlertManager)Send(ctx context.Context, b []byte) error {
 		return err
 	}
 
+	glog.V(3).Infof("Send alert to AlertManager %s.\n", a.Endpoint)
+
 	req, err := http.NewRequest("POST", a.Endpoint, bytes.NewReader(b))
 	if err != nil {
 		return err
@@ -82,7 +84,7 @@ func NewAlertManager(addr string, distribution bool) *AlertManager {
 	Loop:
 		for {
 			if distribution {
-				limit := float64(1/5)
+				limit := float64(5)
 				limiter, err = myrate.NewLimiter(limit, 10)
 				if err != nil {
 					glog.Errorf("Get distribution rate limiter %v failed: %v, use local rate limit", err, limiter)
