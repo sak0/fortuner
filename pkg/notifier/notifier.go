@@ -36,23 +36,27 @@ func (m *NotifyManager)Send(alerts ...*Alert) {
 
 	oldLen := len(m.queue)
 	m.queue = append(m.queue, alerts...)
-	select {
-	case m.more<- struct{}{}:
-	default:
-	}
-	glog.V(2).Infof("Processing alerts %v, QueueLength [%d] -> [%d]\n", alerts, oldLen, len(m.queue))
+	alertNames := func()[]string{
+		var names []string
+		for _, alert := range alerts {
+			names = append(names, alert.Name)
+		}
+		return names
+	}()
+	glog.V(2).Infof("Processing alerts %v, QueueLength [%d] -> [%d]\n", alertNames, oldLen, len(m.queue))
+	m.more<- struct{}{}
+
+	glog.V(2).Infof("Send over alerts %v, QueueLength [%d] -> [%d]\n", alertNames, oldLen, len(m.queue))
 }
 
 func (m *NotifyManager)Run() {
-Loop:
 	for {
 		select {
 		case <-m.done:
 			return
-		case <-time.After(10 * time.Second):
-			continue Loop
 		case <-m.more:
-			m.handleAlerts()
+			glog.Infof("has pending alerts, trigger handleAlerts.\n")
+			go m.handleAlerts()
 		}
 	}
 }
@@ -73,7 +77,15 @@ func (m *NotifyManager)Consume() []*Alert {
 		m.queue = m.queue[:0]
 	}
 
-	glog.V(2).Infof("Consume alerts: %v. QueueLength [%d] -> [%d]\n", alertsSend, queueLen, len(m.queue))
+	alertNames := func()[]string{
+		var names []string
+		for _, alert := range alertsSend {
+			names = append(names, alert.Name)
+		}
+		return names
+	}()
+
+	glog.V(2).Infof("Consume alerts: %v. QueueLength [%d] -> [%d]\n", alertNames, queueLen, len(m.queue))
 	return alertsSend
 }
 

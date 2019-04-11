@@ -1,7 +1,7 @@
 groups:
 - name: yonghui.cn
   rules:
-  - alert: "testWhiteList-wwwfffggg"
+  - alert: "whitelist-fg"
     index: index_23ec1429c0554dd8_yhcloud_10000001_20190411
     es_hosts: http://10.216.158.11:9200
     type: whitelist                                                     #规则类型
