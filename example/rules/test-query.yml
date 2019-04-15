@@ -3,13 +3,13 @@ groups:
   rules:
   - alert: query_fg
     index: index_23ec1429c0554dd8_yhcloud_10000001_20190411
-    es_hosts: http://10.216.158.11:9200
+    es_hosts: 10.216.158.11:9200
     type: any
     filter:
     - query:
         query_string: "IeyesSpringbootApplication"
     num_events: 50
-    time_frame: 360h
+    time_frame: 168h
     labels:
       trigger_interval: 1m
     annotations:

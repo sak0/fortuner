@@ -140,7 +140,7 @@ func (r *FrequencyRule)Eval(ctx context.Context, ts time.Time) error {
 		if !ok {
 			break
 		}
-		if int(result.Hits) >= r.rule.NumEvents {
+		if uint64(result.Hits) >= r.rule.NumEvents {
 			glog.V(2).Infof("Rule %s query hit %d > threshold %d, trigger an alert.", r.Name(), result.Hits, r.rule.NumEvents)
 			//TODO: support one alert rule for multi indices
 			r.active[0] = &Alert{

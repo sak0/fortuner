@@ -25,9 +25,11 @@ type Group struct {
 
 	done 		chan interface{}
 }
+
 func (g *Group)Stop() {
 	g.done<- struct{}{}
 }
+
 func (g *Group)Run() {
 	tick := time.NewTicker(g.interval)
 	defer tick.Stop()
@@ -44,6 +46,7 @@ func (g *Group)Run() {
 		}
 	}
 }
+
 func (g *Group)Eval(ts time.Time) {
 	genAlerts := func(ctx context.Context, alerts []*Alert) chan interface{} {
 		outStream := make(chan interface{})
@@ -137,6 +140,7 @@ type ManagerOpts struct {
 	ResendDelay		time.Duration
 	TailTime 		time.Duration
 }
+
 type RuleManager struct {
 	mtx 		sync.RWMutex
 	opts 		ManagerOpts
@@ -186,7 +190,7 @@ func (m *RuleManager)LoadGroups(fileNames []string) (map[string]*Group, error) {
 	for _, file := range fileNames {
 		groups, err := rulefmt.ParseFile(file)
 		if err != nil {
-			return nil, err
+			glog.Fatalf("parse rule file %s failed: %v\n", file, err)
 		}
 		for _, grp := range groups.Groups {
 			var rules []Rule
@@ -196,7 +200,7 @@ func (m *RuleManager)LoadGroups(fileNames []string) (map[string]*Group, error) {
 
 			for _, rule := range grp.Rules {
 				if err := rule.Validate(); err != nil {
-					return nil, err
+					glog.Fatalf("validate rule %s failed: %v\n", rule.Alert, err)
 				}
 				switch rule.Type {
 				case rulefmt.RuleTypes[rulefmt.TypeFrequency]:

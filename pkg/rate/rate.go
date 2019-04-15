@@ -20,7 +20,7 @@ func (l *Limiter)Limit() float64 {
 	return l.limit
 }
 
-func (l *Limiter)tryReserver (done <-chan interface{}) chan bool {
+func (l *Limiter)tryReserve (done <-chan interface{}) chan bool {
 	outStream := make(chan bool)
 	go func() {
 		defer close(outStream)
@@ -51,7 +51,7 @@ func (l *Limiter)Wait(ctx context.Context) error {
 	glog.V(5).Infof("MyRate wait debugInfo...")
 	stopCh := make(chan interface{})
 	defer close(stopCh)
-	resultCh := l.tryReserver(stopCh)
+	resultCh := l.tryReserve(stopCh)
 
 	for {
 		select {

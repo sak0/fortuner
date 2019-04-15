@@ -7,6 +7,8 @@ import (
 	"runtime/debug"
 	"gopkg.in/yaml.v2"
 	"github.com/golang/glog"
+	"strings"
+	"github.com/toolkits/net"
 )
 
 const (
@@ -15,6 +17,20 @@ const (
 	TypeWhiteList
 	TypeBlackList
 )
+
+const MaxTimeFrame = 24 * time.Hour * 7
+
+func isIpList(ips []string) error {
+	if len(ips) < 0 {
+		return fmt.Errorf("IpAddr is empty.\n")
+	}
+	for _, ip := range ips {
+		if net.IsIntranet(ip) == false {
+			return fmt.Errorf("IpAddr %s is invalid.\n", ip)
+		}
+	}
+	return nil
+}
 
 var RuleTypes []string = []string{
 	"frequency",
@@ -81,13 +97,79 @@ type Rule struct {
 	WhiteList 		[]interface{}		`yaml:"whitelist,omitempty"`
 	BlackList 		[]interface{}		`yaml:"blacklist,omitempty"`
 	Filter			[]RuleFilter		`yaml:"filter,omitempty"`
-	NumEvents		int					`yaml:"num_events,omitempty"`
+	NumEvents		uint64				`yaml:"num_events,omitempty"`
 	TimeFrame 		time.Duration		`yaml:"time_frame"`
 	Labels			map[string]string	`yaml:"labels,omitempty"`
 	Annotations		map[string]string	`yaml:"annotations,omitempty"`
 }
 
+func (r *Rule)validateFrequency() error {
+	if len(r.Filter) == 0 || r.TimeFrame == 0 || r.NumEvents == 0 {
+		return fmt.Errorf("type frequency rule %s's filter, time_frame, num_events should not be none.\n", r.Alert)
+	}
+
+	return nil
+}
+
+func (r *Rule)validateAny() error {
+	if len(r.Filter) == 0 {
+		return fmt.Errorf("type any rule %s's filtershould not be none.\n", r.Alert)
+	}
+
+	return nil
+}
+
+func (r *Rule)validateTypeWhiteBlackList() error {
+	if r.Key == "" {
+		return fmt.Errorf("type white/blackList rule %s's key should not be none.\n", r.Alert)
+	}
+
+	if r.Type == RuleTypes[TypeWhiteList] {
+		if len(r.WhiteList) == 0 {
+			return fmt.Errorf("type whiteList rule %s's whitelist should not be none.\n", r.Alert)
+		}
+	}
+	if r.Type == RuleTypes[TypeBlackList] {
+		if len(r.BlackList) == 0 {
+			return fmt.Errorf("type blacklist rule %s's blacklist should not be none.\n", r.Alert)
+		}
+	}
+
+	return nil
+}
+
 func (r *Rule)Validate() error {
+	if err := isIpList(strings.Split(r.ElasticHosts, ",")); err != nil {
+		return fmt.Errorf("rule %s es_hosts %s is invalid.\n", r.Alert, r.ElasticHosts)
+	}
+
+	if r.TimeFrame > MaxTimeFrame {
+		glog.Warningf("rule %s's time_frame %v is greater than max %v. AUTO change to %v\n",
+			r.Alert, r.TimeFrame, MaxTimeFrame, MaxTimeFrame)
+		r.TimeFrame = MaxTimeFrame
+	}
+
+	switch r.Type {
+	case RuleTypes[TypeFrequency]:
+		if err := r.validateFrequency(); err != nil {
+			return err
+		}
+	case RuleTypes[TypeAny]:
+		if err := r.validateAny(); err != nil {
+			return err
+		}
+	case RuleTypes[TypeWhiteList]:
+		if err := r.validateTypeWhiteBlackList(); err != nil {
+			return err
+		}
+	case RuleTypes[TypeBlackList]:
+		if err := r.validateTypeWhiteBlackList(); err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("Unsupport type %s\n", r.Type)
+	}
+
 	return nil
 }
 

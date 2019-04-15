@@ -3,14 +3,14 @@ groups:
   rules:
   - alert: alert_wfg_ALERT_WFG_wfg_fgfgffg
     index: es_qmc_bill_details_prod
-    es_hosts: 10.214.153.12:9200,http://10.214.153.12:9200,http://10.214.153.12:9200
+    es_hosts: 10.214.153.12:9200,10.214.153.12:9200,10.214.153.12:9200
     type: frequency
     filter:
     - term:
         field: "productCode"
         value: "p_cvm"
     num_events: 50
-    time_frame: 240h
+    time_frame: 168h
     labels:
       trigger_interval: 1m
     annotations:
