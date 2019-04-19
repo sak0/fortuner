@@ -3,13 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="da7ef15c-4845-46ef-b759-a423adf54ce7" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/rules/test-fre-for-bill.yml" beforeDir="false" afterPath="$PROJECT_DIR$/example/rules/test-fre-for-bill.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/rules/test-fre.yml" beforeDir="false" afterPath="$PROJECT_DIR$/example/rules/test-fre.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/rules/test-query.yml" beforeDir="false" afterPath="$PROJECT_DIR$/example/rules/test-query.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/example/rules/test-whitelist.yml" beforeDir="false" afterPath="$PROJECT_DIR$/example/rules/test-whitelist.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/rate/rate.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/rate/rate.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/rulefmt/format.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/rulefmt/format.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pkg/rules/frequency.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/rules/frequency.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/example/rules/test-whitelist.yml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/pkg/rules/manager.go" beforeDir="false" afterPath="$PROJECT_DIR$/pkg/rules/manager.go" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -22,45 +16,45 @@
     <session id="-37501875">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="6" />
-          <entry key="project.open.time.0" value="4" />
+          <entry key="project.closed" value="7" />
+          <entry key="project.open.time.0" value="5" />
           <entry key="project.open.time.1" value="1" />
           <entry key="project.open.time.11" value="1" />
           <entry key="project.open.time.18" value="1" />
           <entry key="project.open.time.2" value="1" />
-          <entry key="project.opened" value="8" />
+          <entry key="project.opened" value="9" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
           <entry key="Dockerfile" value="2" />
           <entry key="Makefile" value="1" />
-          <entry key="go" value="74" />
+          <entry key="go" value="75" />
           <entry key="md" value="1" />
           <entry key="mod" value="1" />
-          <entry key="yml" value="27" />
+          <entry key="yml" value="40" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="DTD" value="1" />
-          <entry key="Go" value="74" />
+          <entry key="Go" value="75" />
           <entry key="PLAIN_TEXT" value="4" />
-          <entry key="YAML" value="27" />
+          <entry key="YAML" value="40" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="go" value="8148" />
+          <entry key="go" value="8399" />
           <entry key="md" value="205" />
-          <entry key="yml" value="149" />
+          <entry key="yml" value="178" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Go" value="8148" />
+          <entry key="Go" value="8399" />
           <entry key="PLAIN_TEXT" value="205" />
-          <entry key="YAML" value="149" />
+          <entry key="YAML" value="178" />
         </counts>
       </usages-collector>
     </session>
@@ -70,7 +64,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="327">
+            <state relative-caret-position="930">
               <caret line="119" column="36" selection-start-line="119" selection-start-column="36" selection-end-line="119" selection-end-column="36" />
             </state>
           </provider>
@@ -79,7 +73,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pkg/rules/alert.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
+            <state relative-caret-position="-168">
               <caret line="41" column="1" selection-start-line="41" selection-start-column="1" selection-end-line="41" selection-end-column="1" />
             </state>
           </provider>
@@ -88,17 +82,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pkg/rate/redis.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2">
-              <caret line="197" column="5" lean-forward="true" selection-start-line="197" selection-start-column="5" selection-end-line="197" selection-end-column="5" />
+            <state relative-caret-position="15">
+              <caret line="197" column="5" selection-start-line="197" selection-start-column="5" selection-end-line="197" selection-end-column="5" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pkg/rulefmt/format.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="284">
-              <caret line="89" lean-forward="true" selection-start-line="89" selection-end-line="89" />
+            <state relative-caret-position="299">
+              <caret line="90" column="18" lean-forward="true" selection-start-line="90" selection-start-column="18" selection-end-line="90" selection-end-column="18" />
             </state>
           </provider>
         </entry>
@@ -106,17 +100,17 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pkg/notifier/notifier.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
+            <state relative-caret-position="615">
               <caret line="47" selection-start-line="47" selection-end-line="47" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/pkg/rules/manager.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="590">
-              <caret line="201" column="34" lean-forward="true" selection-start-line="201" selection-start-column="31" selection-end-line="201" selection-end-column="39" />
+            <state relative-caret-position="165">
+              <caret line="285" lean-forward="true" selection-start-line="285" selection-end-line="285" />
               <folding>
                 <element signature="e#15#153#0" expanded="true" />
               </folding>
@@ -127,8 +121,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/pkg/rules/frequency.go">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1800">
-              <caret line="144" column="60" lean-forward="true" selection-start-line="144" selection-start-column="60" selection-end-line="144" selection-end-column="60" />
+            <state relative-caret-position="2160">
+              <caret line="144" column="60" selection-start-line="144" selection-start-column="60" selection-end-line="144" selection-end-column="60" />
               <folding>
                 <element signature="e#15#175#0" expanded="true" />
               </folding>
@@ -164,13 +158,14 @@
         <option value="$PROJECT_DIR$/pkg/notifier/alertManager.go" />
         <option value="$PROJECT_DIR$/pkg/notifier/notifier.go" />
         <option value="$PROJECT_DIR$/pkg/rate/rate.go" />
-        <option value="$PROJECT_DIR$/pkg/rules/manager.go" />
         <option value="$PROJECT_DIR$/pkg/rules/frequency.go" />
-        <option value="$PROJECT_DIR$/example/rules/test-whitelist.yml" />
         <option value="$PROJECT_DIR$/example/rules/test-fre.yml" />
         <option value="$PROJECT_DIR$/example/rules/test-fre-for-bill.yml" />
         <option value="$PROJECT_DIR$/example/rules/test-query.yml" />
         <option value="$PROJECT_DIR$/pkg/rulefmt/format.go" />
+        <option value="$PROJECT_DIR$/example/rules/whitelist.yml" />
+        <option value="$PROJECT_DIR$/example/rules/test-whitelist.yml" />
+        <option value="$PROJECT_DIR$/pkg/rules/manager.go" />
       </list>
     </option>
   </component>
@@ -191,6 +186,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -248,7 +244,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -308,12 +303,12 @@
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24304539" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24304539" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.3294893" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.3360791" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -446,24 +441,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/query/elastic.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="798">
-          <caret line="241" column="10" lean-forward="true" selection-start-line="241" selection-start-column="10" selection-end-line="241" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/pkg/rules/whitelist.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-120">
           <caret line="97" column="63" selection-start-line="97" selection-start-column="33" selection-end-line="97" selection-end-column="63" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="327">
-          <caret line="119" column="36" selection-start-line="119" selection-start-column="36" selection-end-line="119" selection-end-column="36" />
         </state>
       </provider>
     </entry>
@@ -488,58 +469,79 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/example/rules/test-whitelist.yml">
+    <entry file="file://$PROJECT_DIR$/pkg/notifier/notifier.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="11" selection-start-line="10" selection-start-column="11" selection-end-line="10" selection-end-column="11" />
+        <state relative-caret-position="615">
+          <caret line="47" selection-start-line="47" selection-end-line="47" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pkg/rules/frequency.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1800">
-          <caret line="144" column="60" lean-forward="true" selection-start-line="144" selection-start-column="60" selection-end-line="144" selection-end-column="60" />
+        <state relative-caret-position="2160">
+          <caret line="144" column="60" selection-start-line="144" selection-start-column="60" selection-end-line="144" selection-end-column="60" />
           <folding>
             <element signature="e#15#175#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/rate/redis.go">
+    <entry file="file://$PROJECT_DIR$/main.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2">
-          <caret line="197" column="5" lean-forward="true" selection-start-line="197" selection-start-column="5" selection-end-line="197" selection-end-column="5" />
+        <state relative-caret-position="930">
+          <caret line="119" column="36" selection-start-line="119" selection-start-column="36" selection-end-line="119" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/query/elastic.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2670">
+          <caret line="241" column="10" lean-forward="true" selection-start-line="241" selection-start-column="10" selection-end-line="241" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/rules/whitelist.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret selection-end-line="19" selection-end-column="28" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pkg/rules/alert.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
+        <state relative-caret-position="-168">
           <caret line="41" column="1" selection-start-line="41" selection-start-column="1" selection-end-line="41" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/notifier/notifier.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="47" selection-start-line="47" selection-end-line="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pkg/rules/manager.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="590">
-          <caret line="201" column="34" lean-forward="true" selection-start-line="201" selection-start-column="31" selection-end-line="201" selection-end-column="39" />
-          <folding>
-            <element signature="e#15#153#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/pkg/rulefmt/format.go">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="284">
-          <caret line="89" lean-forward="true" selection-start-line="89" selection-end-line="89" />
+        <state relative-caret-position="299">
+          <caret line="90" column="18" lean-forward="true" selection-start-line="90" selection-start-column="18" selection-end-line="90" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/rate/redis.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="15">
+          <caret line="197" column="5" selection-start-line="197" selection-start-column="5" selection-end-line="197" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/example/rules/test-whitelist.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret selection-end-line="19" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pkg/rules/manager.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="285" lean-forward="true" selection-start-line="285" selection-end-line="285" />
+          <folding>
+            <element signature="e#15#153#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

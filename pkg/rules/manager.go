@@ -42,6 +42,7 @@ func (g *Group)Run() {
 		case <-g.done:
 			return
 		case <-tick.C:
+			glog.V(2).Infof("group %s with file %s Eval", g.name, g.file)
 			g.Eval(time.Now())
 		}
 	}
@@ -255,7 +256,7 @@ func (m *RuleManager)Update(){
 	//		files = append(files, f)
 	//	}
 	//}
-	glog.V(2).Infof("Rule files: %v\n", files)
+	glog.V(2).Infof("Update by rule files: %v\n", files)
 
 	newGroups, err := m.LoadGroups(files)
 	if err != nil {
@@ -266,12 +267,16 @@ func (m *RuleManager)Update(){
 		rulefmt.HandleError(err, msg)
 	}
 
+	glog.V(3).Infof("Old groups: %#v\n", m.Groups)
+	glog.V(3).Infof("New groups: %#v\n", newGroups)
+
 	var wg sync.WaitGroup
 
 	for key, newGroup := range newGroups {
 		wg.Add(1)
 		oldGroup, ok := m.Groups[key]
 		if ok {
+			glog.V(3).Infof("Group[%s] with file %s need stop.\n", key, oldGroup.file)
 			delete(m.Groups, key)
 			oldGroup.Stop()
 		}
@@ -280,6 +285,10 @@ func (m *RuleManager)Update(){
 	}
 
 	wg.Wait()
+
+	for _, oldGroup := range m.Groups {
+		oldGroup.Stop()
+	}
 
 	m.Groups = newGroups
 }
