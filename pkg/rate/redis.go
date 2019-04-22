@@ -1,26 +1,26 @@
 package rate
 
 import (
-	"os"
-	"github.com/gomodule/redigo/redis"
-	"github.com/astaxie/beego/logs"
 	"encoding/json"
-			"time"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
+	"time"
+
 	"github.com/FZambia/sentinel"
 	"github.com/golang/glog"
+	"github.com/gomodule/redigo/redis"
 )
 
 const (
-	EncodeError       	= "encode error: %#v"
-	DecodeError       	= "decode error: %#v"
-	RedisSentinelMode 	= "sentinel"
-	RedisSingleMode   	= "single"
+	EncodeError       = "encode error: %#v"
+	DecodeError       = "decode error: %#v"
+	RedisSentinelMode = "sentinel"
+	RedisSingleMode   = "single"
 
-	TokenKey 			= "rateToken"
-	TimestampKey 		= "rateTimestamp"
+	TokenKey     = "rateToken"
+	TimestampKey = "rateTimestamp"
 )
 
 const rateScript = `
@@ -57,36 +57,36 @@ return { allowed, free_tokens }
 `
 
 type RedisKeeper struct {
-	URL				string
-	Pool 			*redis.Pool
-	Script 			*redis.Script
+	URL    string
+	Pool   *redis.Pool
+	Script *redis.Script
 }
 
-func (r *RedisKeeper)SetString(key string, value string) error {
+func (r *RedisKeeper) SetString(key string, value string) error {
 	c := r.Pool.Get()
 	defer r.close(c)
 
 	_, err := c.Do("SET", key, value)
 	if err != nil {
-		logs.Error("redis set key:%s failed:%s", key, err.Error())
+		glog.Errorf("redis set key:%s failed:%s", key, err.Error())
 		return err
 	}
 	return nil
 }
 
-func (r *RedisKeeper)GetString(key string) (string, error) {
+func (r *RedisKeeper) GetString(key string) (string, error) {
 	c := r.Pool.Get()
 	defer r.close(c)
 
 	value, err := redis.String(c.Do("GET", key))
 	if err != nil {
-		logs.Error("redis get key:%s failed:%s", key, err.Error())
+		glog.Errorf("redis get key:%s failed:%s", key, err.Error())
 		return "", err
 	}
 	return value, err
 }
 
-func (r *RedisKeeper)MultiGetString(keys []string) ([]string, error) {
+func (r *RedisKeeper) MultiGetString(keys []string) ([]string, error) {
 	c := r.Pool.Get()
 	defer r.close(c)
 
@@ -96,24 +96,24 @@ func (r *RedisKeeper)MultiGetString(keys []string) ([]string, error) {
 	}
 	values, err := redis.Strings(c.Do("MGET", args...))
 	if err != nil {
-		logs.Error("redis multi get key:%#v failed:%s", keys, err.Error())
+		glog.Errorf("redis multi get key:%#v failed:%s", keys, err.Error())
 		return nil, err
 	}
 	return values, nil
 }
 
-func (r *RedisKeeper)SetNotExist(key string, obj interface{}) error {
+func (r *RedisKeeper) SetNotExist(key string, obj interface{}) error {
 	c := r.Pool.Get()
 	defer r.close(c)
 
 	v, err := json.Marshal(obj)
 	if err != nil {
-		logs.Error(EncodeError, err)
+		glog.Errorf(EncodeError, err)
 		return err
 	}
 	n, err := c.Do("SETNX", key, v)
 	if err != nil {
-		logs.Error("redis set if not exist key:%s failed:%s", key, err.Error())
+		glog.Errorf("redis set if not exist key:%s failed:%s", key, err.Error())
 		return err
 	}
 	if n == int64(1) {
@@ -122,28 +122,28 @@ func (r *RedisKeeper)SetNotExist(key string, obj interface{}) error {
 	return &RedisError{Key: key}
 }
 
-func (r *RedisKeeper)Set(key string, obj interface{}) error {
+func (r *RedisKeeper) Set(key string, obj interface{}) error {
 	c := r.Pool.Get()
 	defer r.close(c)
 
 	v, err := json.Marshal(obj)
 	if err != nil {
-		logs.Error(EncodeError, err)
+		glog.Errorf(EncodeError, err)
 		return err
 	}
 	_, err = c.Do("SET", key, v)
 	if err != nil {
-		logs.Error("redis set object key:%s failed:%s", key, err.Error())
+		glog.Errorf("redis set object key:%s failed:%s", key, err.Error())
 		return err
 	}
 	return nil
 }
 
-func (r *RedisKeeper)Eval(rate int, capacity int, request int) (bool, error) {
+func (r *RedisKeeper) Eval(rate int, capacity int, request int) (bool, error) {
 	c := r.Pool.Get()
 	defer r.close(c)
 
-	if err :=r.Script.Load(c); err != nil {
+	if err := r.Script.Load(c); err != nil {
 		glog.Errorf("redis EVAL load script failed: %v\n", err)
 		return false, err
 	}
@@ -164,36 +164,36 @@ func (r *RedisKeeper)Eval(rate int, capacity int, request int) (bool, error) {
 	return true, nil
 }
 
-func (r *RedisKeeper)Get(key string, obj interface{}) error {
+func (r *RedisKeeper) Get(key string, obj interface{}) error {
 	c := r.Pool.Get()
 	defer r.close(c)
 
 	value, err := redis.Bytes(c.Do("GET", key))
 	if err != nil {
-		logs.Error("redis get object key:%s failed: %s", key, err.Error())
+		glog.Errorf("redis get object key:%s failed: %s", key, err.Error())
 		return err
 	}
 
 	err = json.Unmarshal(value, &obj)
 	if err != nil {
-		logs.Error(DecodeError, err)
+		glog.Errorf(DecodeError, err)
 		return err
 	}
 	return nil
 }
 
-func (r *RedisKeeper)HashSet(key, field string, obj interface{}) error {
+func (r *RedisKeeper) HashSet(key, field string, obj interface{}) error {
 	c := r.Pool.Get()
 	defer r.close(c)
 
 	v, err := json.Marshal(obj)
 	if err != nil {
-		logs.Error(EncodeError, err)
+		glog.Errorf(EncodeError, err)
 		return err
 	}
 	n, err := c.Do("HSET", key, field, v)
 	if err != nil {
-		logs.Error("redis hash set key:%s failed:%s", key, err.Error())
+		glog.Errorf("redis hash set key:%s failed:%s", key, err.Error())
 		return err
 	}
 	if n == int64(1) {
@@ -204,7 +204,7 @@ func (r *RedisKeeper)HashSet(key, field string, obj interface{}) error {
 
 // multiValue: key_name field1 value1... fieldN valueN
 // []string{"key_name", "field1", "value1", "field2", "value2"}
-func (r *RedisKeeper)MultiHashSet(multiValue []interface{}) error {
+func (r *RedisKeeper) MultiHashSet(multiValue []interface{}) error {
 	c := r.Pool.Get()
 	defer r.close(c)
 
@@ -215,7 +215,7 @@ func (r *RedisKeeper)MultiHashSet(multiValue []interface{}) error {
 
 	n, err := c.Do("HMSET", args...)
 	if err != nil {
-		logs.Error("redis multi hash set key:%s failed:%s", multiValue[0], err.Error())
+		glog.Errorf("redis multi hash set key:%s failed:%s", multiValue[0], err.Error())
 		return err
 	}
 	if n == string("OK") {
@@ -224,73 +224,73 @@ func (r *RedisKeeper)MultiHashSet(multiValue []interface{}) error {
 	return &RedisError{Key: multiValue[0].(string)}
 }
 
-func (r *RedisKeeper)HashGet(key, field string, obj interface{}) error {
+func (r *RedisKeeper) HashGet(key, field string, obj interface{}) error {
 	c := r.Pool.Get()
 	defer r.close(c)
 
 	value, err := redis.Bytes(c.Do("HGET", key, field))
 	if err != nil {
-		logs.Error("redis hash get key:%s failed:%s", key, err.Error())
+		glog.Errorf("redis hash get key:%s failed:%s", key, err.Error())
 		return err
 	}
 
 	err = json.Unmarshal(value, &obj)
 	if err != nil {
-		logs.Error(DecodeError, err)
+		glog.Errorf(DecodeError, err)
 		return err
 	}
 	return nil
 }
 
-func (r *RedisKeeper)HashDelete(key, field string) error {
+func (r *RedisKeeper) HashDelete(key, field string) error {
 	c := r.Pool.Get()
 	defer r.close(c)
 
 	_, err := c.Do("HDEL", key, field)
 	if err != nil {
-		logs.Error("redis hash delete key:%s failed:%s", key, err.Error())
+		glog.Errorf("redis hash delete key:%s failed:%s", key, err.Error())
 		return err
 	}
 	return nil
 }
 
-func (r *RedisKeeper)HashGetAll(key string) ([]interface{}, error) {
+func (r *RedisKeeper) HashGetAll(key string) ([]interface{}, error) {
 	c := r.Pool.Get()
 	defer r.close(c)
 
 	values, err := redis.Values(c.Do("HVALS", key))
 	if err != nil {
-		logs.Error("redis hash get key:%s all failed:%s", key, err.Error())
+		glog.Errorf("redis hash get key:%s all failed:%s", key, err.Error())
 		return nil, err
 	}
 	return values, nil
 }
 
-func (r *RedisKeeper)Delete(key string) error {
+func (r *RedisKeeper) Delete(key string) error {
 	c := r.Pool.Get()
 	defer r.close(c)
 
 	_, err := c.Do("DEL", key)
 	if err != nil {
-		logs.Error("redis delete key:%s failed:%s", key, err)
+		glog.Errorf("redis delete key:%s failed:%s", key, err)
 		return err
 	}
 	return nil
 }
 
-func (r *RedisKeeper)Exist(key string) (bool, error) {
+func (r *RedisKeeper) Exist(key string) (bool, error) {
 	c := r.Pool.Get()
 	defer r.close(c)
 
 	e, err := redis.Bool(c.Do("GET", key))
 	if err != nil {
-		logs.Error("redis exist key: %s failed:%s", key, err.Error())
+		glog.Errorf("redis exist key: %s failed:%s", key, err.Error())
 		return e, err
 	}
 	return e, nil
 }
 
-func (r *RedisKeeper)Expire(key string, expiration int) error {
+func (r *RedisKeeper) Expire(key string, expiration int) error {
 	c := r.Pool.Get()
 	defer r.close(c)
 
@@ -301,7 +301,7 @@ func (r *RedisKeeper)Expire(key string, expiration int) error {
 	return &RedisError{Key: key}
 }
 
-func (r *RedisKeeper)close(conn redis.Conn) {
+func (r *RedisKeeper) close(conn redis.Conn) {
 	conn.Close()
 }
 
@@ -314,7 +314,7 @@ func (r *RedisError) Error() string {
 	return fmt.Sprintf("redis operation failed, key:%s", r.Key)
 }
 
-func getSinglePool()*redis.Pool{
+func getSinglePool() *redis.Pool {
 	redisDbStr := os.Getenv("REDIS_DB")
 	redisDb, _ := strconv.Atoi(redisDbStr)
 	redisPass := os.Getenv("REDIS_PASSWD")
@@ -338,7 +338,7 @@ func getSinglePool()*redis.Pool{
 	return redisPool
 }
 
-func getSentinelPool() (*redis.Pool) {
+func getSentinelPool() *redis.Pool {
 	redisHosts := os.Getenv("REDIS_HOSTS")
 	redisAddrs := strings.Split(redisHosts, ",")
 	redisDbstr := os.Getenv("REDIS_DB")
@@ -380,7 +380,7 @@ func getSentinelPool() (*redis.Pool) {
 	return RedisPool
 }
 
-func NewRedisClient()(*RedisKeeper, error){
+func NewRedisClient() (*RedisKeeper, error) {
 	redisMode := os.Getenv("REDIS_MODE")
 	var redisPool *redis.Pool
 	switch redisMode {
@@ -396,8 +396,8 @@ func NewRedisClient()(*RedisKeeper, error){
 	//TODO: verify redis server is available
 
 	return &RedisKeeper{
-		URL : redisURL,
-		Pool: redisPool,
+		URL:    redisURL,
+		Pool:   redisPool,
 		Script: redis.NewScript(2, rateScript),
 	}, nil
 }

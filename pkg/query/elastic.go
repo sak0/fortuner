@@ -6,14 +6,15 @@ import (
 	"log"
 	"os"
 	"time"
-	"github.com/olivere/elastic"
+
 	"github.com/afex/hystrix-go/hystrix"
 	"github.com/golang/glog"
+	"github.com/olivere/elastic"
 )
 
 const (
-	DefaultHystrixTimeout 		= 5000
-	DefaultHystrixMaxRequest	= 10
+	DefaultHystrixTimeout    = 5000
+	DefaultHystrixMaxRequest = 10
 )
 
 type QueryHitResult struct {
@@ -21,21 +22,34 @@ type QueryHitResult struct {
 	Took int64
 }
 
-type ElasticClient struct{
-	client	*elastic.Client
+type ElasticClient struct {
+	client *elastic.Client
 }
 
-func (es *ElasticClient)GetIndex() ([]string, error) {
+func (es *ElasticClient) GetIndex() ([]string, error) {
 	return es.client.IndexNames()
 }
 
-func (es *ElasticClient)GetHitsForNotInListWithHystrix(startTime time.Time,
+// GetIndexByPrefix Get Index by prefix
+func (es *ElasticClient) GetIndexByPrefix(name string) ([]string, error) {
+	res, err := es.client.IndexGetSettings().Index(name).Do(context.Background())
+	if err != nil {
+		return nil, err
+	}
+	var names []string
+	for name := range res {
+		names = append(names, name)
+	}
+	return names, nil
+}
+
+func (es *ElasticClient) GetHitsForNotInListWithHystrix(startTime time.Time,
 	indexName string, key string, blackList ...interface{}) (chan *QueryHitResult, chan error) {
 	ctx := context.Background()
 	resultCh := make(chan *QueryHitResult)
 
 	hystrix.ConfigureCommand(indexName, hystrix.CommandConfig{
-		Timeout: DefaultHystrixTimeout,
+		Timeout:               DefaultHystrixTimeout,
 		MaxConcurrentRequests: DefaultHystrixMaxRequest,
 	})
 
@@ -52,26 +66,25 @@ func (es *ElasticClient)GetHitsForNotInListWithHystrix(startTime time.Time,
 			return err
 		}
 		result := &QueryHitResult{
-			Hits:whiteListResult.TotalHits(),
-			Took:whiteListResult.TookInMillis,
+			Hits: whiteListResult.TotalHits(),
+			Took: whiteListResult.TookInMillis,
 		}
-		resultCh<- result
+		resultCh <- result
 		glog.V(3).Infof("WhiteList count: %d take %v millisecond\n",
 			whiteListResult.TotalHits(), whiteListResult.TookInMillis)
 		return nil
 	}, nil)
 
-
 	return resultCh, errCh
 }
 
-func (es *ElasticClient)GetHitsForInListWithHystrix(startTime time.Time,
+func (es *ElasticClient) GetHitsForInListWithHystrix(startTime time.Time,
 	indexName string, key string, whiteList ...interface{}) (chan *QueryHitResult, chan error) {
 	ctx := context.Background()
 	resultCh := make(chan *QueryHitResult)
 
 	hystrix.ConfigureCommand(indexName, hystrix.CommandConfig{
-		Timeout: DefaultHystrixTimeout,
+		Timeout:               DefaultHystrixTimeout,
 		MaxConcurrentRequests: DefaultHystrixMaxRequest,
 	})
 
@@ -88,26 +101,25 @@ func (es *ElasticClient)GetHitsForInListWithHystrix(startTime time.Time,
 			return err
 		}
 		result := &QueryHitResult{
-			Hits:whiteListResult.TotalHits(),
-			Took:whiteListResult.TookInMillis,
+			Hits: whiteListResult.TotalHits(),
+			Took: whiteListResult.TookInMillis,
 		}
-		resultCh<- result
+		resultCh <- result
 		glog.V(3).Infof("BlackList count: %d take %v millisecond\n",
 			whiteListResult.TotalHits(), whiteListResult.TookInMillis)
 		return nil
 	}, nil)
 
-
 	return resultCh, errCh
 }
 
-func (es *ElasticClient)GetHitsForQueryStringWithHystrix(startTime time.Time,
+func (es *ElasticClient) GetHitsForQueryStringWithHystrix(startTime time.Time,
 	indexName string, msg string) (chan *QueryHitResult, chan error) {
 	ctx := context.Background()
 	resultCh := make(chan *QueryHitResult)
 
 	hystrix.ConfigureCommand(indexName, hystrix.CommandConfig{
-		Timeout: DefaultHystrixTimeout,
+		Timeout:               DefaultHystrixTimeout,
 		MaxConcurrentRequests: DefaultHystrixMaxRequest,
 	})
 
@@ -116,7 +128,7 @@ func (es *ElasticClient)GetHitsForQueryStringWithHystrix(startTime time.Time,
 
 		wildCardMsg := "*" + msg + "*"
 		msgWildcardQuery := elastic.NewBoolQuery()
-		msgWildcardQuery =	msgWildcardQuery.Must(elastic.NewWildcardQuery("message", wildCardMsg))
+		msgWildcardQuery = msgWildcardQuery.Must(elastic.NewWildcardQuery("message", wildCardMsg))
 		msgWildcardQuery = msgWildcardQuery.Filter(elastic.NewRangeQuery("@timestamp").Gt(startTime))
 		msgWildcardResult, err := es.client.Search(indexName).
 			Query(msgWildcardQuery).Type("doc").Do(ctx)
@@ -127,23 +139,23 @@ func (es *ElasticClient)GetHitsForQueryStringWithHystrix(startTime time.Time,
 		glog.V(3).Infof("msgWildcardQuery count: %d take %v milliseconds.\n",
 			msgWildcardResult.TotalHits(), msgWildcardResult.TookInMillis)
 		result := &QueryHitResult{
-			Hits:msgWildcardResult.TotalHits(),
-			Took:msgWildcardResult.TookInMillis,
+			Hits: msgWildcardResult.TotalHits(),
+			Took: msgWildcardResult.TookInMillis,
 		}
 
-		resultCh<- result
+		resultCh <- result
 		return nil
 	}, nil)
 
 	return resultCh, errCh
 }
 
-func (es *ElasticClient)GetHitsForQueryString(startTime time.Time, indexName string, msg string) (int64, error) {
+func (es *ElasticClient) GetHitsForQueryString(startTime time.Time, indexName string, msg string) (int64, error) {
 	ctx := context.Background()
 
 	wildCardMsg := "*" + msg + "*"
 	msgWildcardQuery := elastic.NewBoolQuery()
-	msgWildcardQuery =	msgWildcardQuery.Must(elastic.NewWildcardQuery("message", wildCardMsg))
+	msgWildcardQuery = msgWildcardQuery.Must(elastic.NewWildcardQuery("message", wildCardMsg))
 	msgWildcardQuery = msgWildcardQuery.Filter(elastic.NewRangeQuery("@timestamp").Gt(startTime))
 	msgWildcardResult, err := es.client.Search(indexName).
 		Query(msgWildcardQuery).Type("doc").Do(ctx)
@@ -157,13 +169,13 @@ func (es *ElasticClient)GetHitsForQueryString(startTime time.Time, indexName str
 	return msgWildcardResult.TotalHits(), nil
 }
 
-func (es *ElasticClient)GetHitsForItemWithHystrix(startTime time.Time,
+func (es *ElasticClient) GetHitsForItemWithHystrix(startTime time.Time,
 	indexName string, key string, value string) (chan *QueryHitResult, chan error) {
 	ctx := context.Background()
 	resultCh := make(chan *QueryHitResult)
 
 	hystrix.ConfigureCommand(indexName, hystrix.CommandConfig{
-		Timeout: 5000,
+		Timeout:               5000,
 		MaxConcurrentRequests: 10,
 	})
 	errCh := hystrix.Go(indexName, func() error {
@@ -186,14 +198,14 @@ func (es *ElasticClient)GetHitsForItemWithHystrix(startTime time.Time,
 			Hits: bQueryResult.TotalHits(),
 			Took: bQueryResult.TookInMillis,
 		}
-		resultCh<- result
+		resultCh <- result
 		return nil
 	}, nil)
 
 	return resultCh, errCh
 }
 
-func (es *ElasticClient)GetHitsForItem(startTime time.Time, indexName string, key string, value string) (int64, error) {
+func (es *ElasticClient) GetHitsForItem(startTime time.Time, indexName string, key string, value string) (int64, error) {
 	ctx := context.Background()
 
 	boolQ := elastic.NewBoolQuery()
@@ -210,34 +222,34 @@ func (es *ElasticClient)GetHitsForItem(startTime time.Time, indexName string, ke
 	return bQueryResult.TotalHits(), nil
 }
 
-func (es *ElasticClient)DeleteIndex(indexName string)error{
+func (es *ElasticClient) DeleteIndex(indexName string) error {
 	ctx := context.Background()
 	deleteResp, err := es.client.DeleteIndex(indexName).Do(ctx)
 	if err != nil {
 		return err
 	}
-	if !deleteResp.Acknowledged{
+	if !deleteResp.Acknowledged {
 		return errors.New("Delete index error.\n")
 	}
 	return nil
 }
 
-func (es *ElasticClient)Close() {
+func (es *ElasticClient) Close() {
 	es.client.Stop()
 }
 
-func CreateElasticSearchClient(addrs []string)(*ElasticClient, error){
+func CreateElasticSearchClient(addrs []string) (*ElasticClient, error) {
 	client, err := elastic.NewClient(
 		elastic.SetURL(addrs...),
 		elastic.SetSniff(false),
-		elastic.SetHealthcheckInterval(10 * time.Second),
+		elastic.SetHealthcheckInterval(10*time.Second),
 		elastic.SetGzip(true),
 		elastic.SetErrorLog(log.New(os.Stderr, "ELASTIC ", log.LstdFlags)),
 		elastic.SetInfoLog(log.New(os.Stdout, "", log.LstdFlags)))
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	return &ElasticClient{
-		client:client,
+		client: client,
 	}, nil
 }

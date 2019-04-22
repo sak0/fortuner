@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sak0/fortuner/pkg/rulefmt"
 	"github.com/golang/glog"
+	"github.com/sak0/fortuner/pkg/rulefmt"
 )
 
 var defaultInterval = 30 * time.Second
@@ -17,20 +17,20 @@ var defaultInterval = 30 * time.Second
 type NotifyFunc func(ctx context.Context, alerts ...*Alert)
 
 type Group struct {
-	name     	string
-	file     	string
-	interval 	time.Duration
-	rules    	[]Rule
-	opts 		ManagerOpts
+	name     string
+	file     string
+	interval time.Duration
+	rules    []Rule
+	opts     ManagerOpts
 
-	done 		chan interface{}
+	done chan interface{}
 }
 
-func (g *Group)Stop() {
-	g.done<- struct{}{}
+func (g *Group) Stop() {
+	g.done <- struct{}{}
 }
 
-func (g *Group)Run() {
+func (g *Group) Run() {
 	tick := time.NewTicker(g.interval)
 	defer tick.Stop()
 	defer glog.V(2).Infof("Group %s goroutine exit.\n", g.name)
@@ -48,18 +48,18 @@ func (g *Group)Run() {
 	}
 }
 
-func (g *Group)Eval(ts time.Time) {
+func (g *Group) Eval(ts time.Time) {
 	genAlerts := func(ctx context.Context, alerts []*Alert) chan interface{} {
 		outStream := make(chan interface{})
 
-		go func(){
+		go func() {
 			defer close(outStream)
 			select {
 			case <-ctx.Done():
 				return
 			default:
 				for _, alert := range alerts {
-					outStream<- alert
+					outStream <- alert
 				}
 			}
 		}()
@@ -68,7 +68,7 @@ func (g *Group)Eval(ts time.Time) {
 
 	needSending := func(ctx context.Context, input <-chan interface{}, resendDelay time.Duration, ts time.Time) chan interface{} {
 		outStream := make(chan interface{})
-		go func(){
+		go func() {
 			defer close(outStream)
 			for {
 				select {
@@ -83,11 +83,11 @@ func (g *Group)Eval(ts time.Time) {
 						glog.V(2).Infof("Do not send pending alert.")
 					}
 					if ar.ResolvedAt.After(ar.LastSentAt) {
-						outStream<- ar
+						outStream <- ar
 						return
 					}
 					if ar.LastSentAt.Add(resendDelay).Before(ts) {
-						outStream<- ar
+						outStream <- ar
 						return
 					}
 					glog.V(2).Infof("Alert can not send: %#v", ar)
@@ -97,7 +97,6 @@ func (g *Group)Eval(ts time.Time) {
 		return outStream
 	}
 
-
 	select {
 	case <-g.done:
 		return
@@ -105,6 +104,10 @@ func (g *Group)Eval(ts time.Time) {
 		var alerts []*Alert
 		ctx, cancel := context.WithCancel(g.opts.Ctx)
 		for _, rule := range g.rules {
+			if err := rule.DetermineIndex(g.opts.EnableFuzzyIndex); err != nil {
+				glog.V(2).Infof("rule(%s) determine index failed: %v", rule.Name(), err)
+				continue
+			}
 			if err := rule.Eval(g.opts.Ctx, time.Now()); err != nil {
 				glog.V(2).Infof("rule %s eval failed: %v", rule.Name(), err)
 				continue
@@ -121,54 +124,55 @@ func (g *Group)Eval(ts time.Time) {
 	}
 }
 
-func NewGroup(opts ManagerOpts, groupName string, fileName string, rules []Rule)*Group {
+func NewGroup(opts ManagerOpts, groupName string, fileName string, rules []Rule) *Group {
 	return &Group{
-		interval:opts.Interval,
-		name:groupName,
-		file:fileName,
-		rules:rules,
-		done:make(chan interface{}),
-		opts:opts,
+		interval: opts.Interval,
+		name:     groupName,
+		file:     fileName,
+		rules:    rules,
+		done:     make(chan interface{}),
+		opts:     opts,
 	}
 }
 
 type ManagerOpts struct {
-	RulesFilePath 	string
-	Ctx 			context.Context
-	ExternalURL     *url.URL
-	NotifyFunc		NotifyFunc
-	Interval 		time.Duration
-	ResendDelay		time.Duration
-	TailTime 		time.Duration
+	RulesFilePath    string
+	Ctx              context.Context
+	ExternalURL      *url.URL
+	NotifyFunc       NotifyFunc
+	Interval         time.Duration
+	ResendDelay      time.Duration
+	TailTime         time.Duration
+	EnableFuzzyIndex bool
 }
 
 type RuleManager struct {
-	mtx 		sync.RWMutex
-	opts 		ManagerOpts
-	Groups 		map[string]*Group
-	needUpdate	int
+	mtx        sync.RWMutex
+	opts       ManagerOpts
+	Groups     map[string]*Group
+	needUpdate int
 }
 
 func groupKey(name, file string) string {
 	return name + ";" + file
 }
 
-func (m *RuleManager)Lock() {
+func (m *RuleManager) Lock() {
 	m.mtx.Lock()
 }
 
-func (m *RuleManager)UnLock() {
+func (m *RuleManager) UnLock() {
 	m.mtx.Unlock()
 }
 
-func (m *RuleManager)SetNeedUpdate() {
+func (m *RuleManager) SetNeedUpdate() {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
 	m.needUpdate = 1
 }
 
-func (m *RuleManager)NeedUpdate() bool {
+func (m *RuleManager) NeedUpdate() bool {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
@@ -178,14 +182,14 @@ func (m *RuleManager)NeedUpdate() bool {
 	return false
 }
 
-func (m *RuleManager)CleanNeedUpdate() {
+func (m *RuleManager) CleanNeedUpdate() {
 	m.mtx.Lock()
 	defer m.mtx.Unlock()
 
 	m.needUpdate = 0
 }
 
-func (m *RuleManager)LoadGroups(fileNames []string) (map[string]*Group, error) {
+func (m *RuleManager) LoadGroups(fileNames []string) (map[string]*Group, error) {
 	allGroups := make(map[string]*Group)
 
 	for _, file := range fileNames {
@@ -229,13 +233,13 @@ func (m *RuleManager)LoadGroups(fileNames []string) (map[string]*Group, error) {
 	return allGroups, nil
 }
 
-func (m *RuleManager)Update(){
+func (m *RuleManager) Update() {
 	m.needUpdate = 0
 
 	var files []string
-	err := filepath.Walk(m.opts.RulesFilePath, func(path string, info os.FileInfo, err error) error{
+	err := filepath.Walk(m.opts.RulesFilePath, func(path string, info os.FileInfo, err error) error {
 		isYml, err := filepath.Match("*.yml", info.Name())
-		if err != nil  {
+		if err != nil {
 			return err
 		}
 		if isYml {
@@ -295,8 +299,8 @@ func (m *RuleManager)Update(){
 
 func NewRuleManager(opts ManagerOpts) *RuleManager {
 	return &RuleManager{
-		mtx:sync.RWMutex{},
-		opts:opts,
-		needUpdate:0,
+		mtx:        sync.RWMutex{},
+		opts:       opts,
+		needUpdate: 0,
 	}
 }

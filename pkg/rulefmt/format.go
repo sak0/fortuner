@@ -1,14 +1,15 @@
 package rulefmt
 
 import (
-	"time"
-	"io/ioutil"
 	"fmt"
+	"io/ioutil"
 	"runtime/debug"
-	"gopkg.in/yaml.v2"
-	"github.com/golang/glog"
 	"strings"
+	"time"
+
+	"github.com/golang/glog"
 	"github.com/toolkits/net"
+	"gopkg.in/yaml.v2"
 )
 
 const (
@@ -42,68 +43,69 @@ var RuleTypes []string = []string{
 type LowRuleError struct {
 	*RuleError
 }
-func (e LowRuleError)Error()string{
+
+func (e LowRuleError) Error() string {
 	return e.Msg
 }
 
 type RuleError struct {
-	Inner	error
-	Msg 	string
-	Stack 	string
-	Misc 	map[string]interface{}
+	Inner error
+	Msg   string
+	Stack string
+	Misc  map[string]interface{}
 }
 
-func WrapRuleError(err error, msg string, msgArgs ...interface{})*RuleError {
+func WrapRuleError(err error, msg string, msgArgs ...interface{}) *RuleError {
 	return &RuleError{
-		Inner:err,
-		Msg:fmt.Sprintf(msg, msgArgs...),
-		Stack:string(debug.Stack()),
-		Misc:make(map[string]interface{}),
+		Inner: err,
+		Msg:   fmt.Sprintf(msg, msgArgs...),
+		Stack: string(debug.Stack()),
+		Misc:  make(map[string]interface{}),
 	}
 }
 
-func HandleError(err error, msg string){
+func HandleError(err error, msg string) {
 	glog.V(2).Infof("%v", err)
 	fmt.Printf("%s", msg)
 }
 
 type RuleGroups struct {
-	Groups	[]RuleGroup 	`yaml:"groups"`
+	Groups []RuleGroup `yaml:"groups"`
 }
 
 type RuleGroup struct {
-	Name     string         `yaml:"name"`
-	Interval time.Duration	`yaml:"interval,omitempty"`
-	Rules    []Rule         `yaml:"rules"`
+	Name     string        `yaml:"name"`
+	Interval time.Duration `yaml:"interval,omitempty"`
+	Rules    []Rule        `yaml:"rules"`
 }
 type RuleFilterQuery struct {
-	QueryString 	string 	`yaml:"query_string"`
+	QueryString string `yaml:"query_string"`
 }
 type RuleFilterTerm struct {
-	Field  	string	`yaml:"field"`
-	Value 	string  `yaml:"value"`
+	Field string `yaml:"field"`
+	Value string `yaml:"value"`
 }
 type RuleFilter struct {
-	Query   RuleFilterQuery	`yaml:"query,omitempty"`
-	Term	RuleFilterTerm 	`yaml:"term,omitempty"`
+	Query RuleFilterQuery `yaml:"query,omitempty"`
+	Term  RuleFilterTerm  `yaml:"term,omitempty"`
 }
 
 type Rule struct {
-	Alert 			string 				`yaml:"alert"`
-	Index			string				`yaml:"index"`
-	ElasticHosts	string				`yaml:"es_hosts"`
-	Type			string				`yaml:"type"`
-	Key 			string  			`yaml:"key,omitempty"`
-	WhiteList 		[]interface{}		`yaml:"whitelist,omitempty"`
-	BlackList 		[]interface{}		`yaml:"blacklist,omitempty"`
-	Filter			[]RuleFilter		`yaml:"filter,omitempty"`
-	NumEvents		uint64				`yaml:"num_events,omitempty"`
-	TimeFrame 		time.Duration		`yaml:"time_frame"`
-	Labels			map[string]string	`yaml:"labels,omitempty"`
-	Annotations		map[string]string	`yaml:"annotations,omitempty"`
+	Alert        string            `yaml:"alert"`
+	Index        string            `yaml:"index"`
+	ElasticHosts string            `yaml:"es_hosts"`
+	Type         string            `yaml:"type"`
+	Key          string            `yaml:"key,omitempty"`
+	WhiteList    []interface{}     `yaml:"whitelist,omitempty"`
+	BlackList    []interface{}     `yaml:"blacklist,omitempty"`
+	Filter       []RuleFilter      `yaml:"filter,omitempty"`
+	NumEvents    uint64            `yaml:"num_events,omitempty"`
+	TimeFrame    time.Duration     `yaml:"time_frame"`
+	Labels       map[string]string `yaml:"labels,omitempty"`
+	Annotations  map[string]string `yaml:"annotations,omitempty"`
 }
 
-func (r *Rule)validateFrequency() error {
+func (r *Rule) validateFrequency() error {
 	if len(r.Filter) == 0 || r.TimeFrame == 0 || r.NumEvents == 0 {
 		return fmt.Errorf("type frequency rule %s's filter, time_frame, num_events should not be none.\n", r.Alert)
 	}
@@ -111,7 +113,7 @@ func (r *Rule)validateFrequency() error {
 	return nil
 }
 
-func (r *Rule)validateAny() error {
+func (r *Rule) validateAny() error {
 	if len(r.Filter) == 0 {
 		return fmt.Errorf("type any rule %s's filtershould not be none.\n", r.Alert)
 	}
@@ -119,7 +121,7 @@ func (r *Rule)validateAny() error {
 	return nil
 }
 
-func (r *Rule)validateTypeWhiteBlackList() error {
+func (r *Rule) validateTypeWhiteBlackList() error {
 	if r.Key == "" {
 		return fmt.Errorf("type white/blackList rule %s's key should not be none.\n", r.Alert)
 	}
@@ -138,7 +140,7 @@ func (r *Rule)validateTypeWhiteBlackList() error {
 	return nil
 }
 
-func (r *Rule)Validate() error {
+func (r *Rule) Validate() error {
 	if err := isIpList(strings.Split(r.ElasticHosts, ",")); err != nil {
 		return fmt.Errorf("rule %s es_hosts %s is invalid.\n", r.Alert, r.ElasticHosts)
 	}
@@ -167,7 +169,7 @@ func (r *Rule)Validate() error {
 			return err
 		}
 	default:
-		return fmt.Errorf("Unsupport type %s\n", r.Type)
+		return fmt.Errorf("Unsupport type %s", r.Type)
 	}
 
 	return nil
