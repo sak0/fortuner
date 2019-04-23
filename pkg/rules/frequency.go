@@ -7,13 +7,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/sak0/fortuner/pkg/rulefmt"
-	"github.com/sak0/fortuner/pkg/query"
 	"github.com/golang/glog"
+	"github.com/sak0/fortuner/pkg/query"
+	"github.com/sak0/fortuner/pkg/rulefmt"
 )
 
 const (
-	SLOWQUERYTOOK = 2000
+	SLOWQUERYTOOK     = 2000
 	SLOWQUERYINTERVAL = 2 * time.Minute
 )
 
@@ -28,7 +28,7 @@ func elasticEndpoints(addr string) []string {
 	return addrs
 }
 
-func matchKey(sample map[string]string, filters map[string]string)bool {
+func matchKey(sample map[string]string, filters map[string]string) bool {
 	for filterKey, filterValue := range filters {
 		sampleValue, ok := sample[filterKey]
 		if !ok {
@@ -42,9 +42,9 @@ func matchKey(sample map[string]string, filters map[string]string)bool {
 	return true
 }
 
-func arrayIn(arr []string, item string)bool{
-	for _, v := range arr{
-		if v == item{
+func arrayIn(arr []string, item string) bool {
+	for _, v := range arr {
+		if v == item {
 			return true
 		}
 	}
@@ -52,54 +52,54 @@ func arrayIn(arr []string, item string)bool{
 }
 
 type FrequencyRule struct {
-	mtx				sync.Mutex
-	rule 			rulefmt.Rule
-	active 			map[uint64]*Alert
-	interval 		time.Duration
-	origInterval 	time.Duration
-	lastEval    	time.Time
+	*BaseRule
+	mtx          sync.Mutex
+	active       map[uint64]*Alert
+	interval     time.Duration
+	origInterval time.Duration
+	lastEval     time.Time
 }
 
-func (r *FrequencyRule)Name() string {
+func (r *FrequencyRule) Name() string {
 	return r.rule.Alert
 }
 
-func (r *FrequencyRule)LastEval() time.Time {
+func (r *FrequencyRule) LastEval() time.Time {
 	return r.lastEval
 }
 
-func (r *FrequencyRule)Interval() time.Duration {
+func (r *FrequencyRule) Interval() time.Duration {
 	return r.interval
 }
 
-func (r *FrequencyRule)updateEvalTime(ts time.Time) {
+func (r *FrequencyRule) updateEvalTime(ts time.Time) {
 	r.mtx.Lock()
 	defer r.mtx.Unlock()
 
 	r.lastEval = ts
 }
 
-func (r *FrequencyRule)Lock() {
+func (r *FrequencyRule) Lock() {
 	r.mtx.Lock()
 }
 
-func (r *FrequencyRule)UnLock() {
+func (r *FrequencyRule) UnLock() {
 	r.mtx.Unlock()
 }
 
-func (r *FrequencyRule)SlowdownEvalInterval(slowInterval time.Duration) {
+func (r *FrequencyRule) SlowdownEvalInterval(slowInterval time.Duration) {
 	glog.V(2).Infof("Rule %s query too slow, slow donw query interval to %v\n", r.rule.Alert, r.interval)
 	r.origInterval = r.interval
 	r.interval = slowInterval
 }
 
-func (r *FrequencyRule)RestoreEvalInterval() {
+func (r *FrequencyRule) RestoreEvalInterval() {
 	if r.origInterval != 0 {
 		r.interval = r.origInterval
 	}
 }
 
-func (r *FrequencyRule)Eval(ctx context.Context, ts time.Time) error {
+func (r *FrequencyRule) Eval(ctx context.Context, ts time.Time) error {
 	if !needEval(r, ts) {
 		return nil
 	}
@@ -136,7 +136,7 @@ func (r *FrequencyRule)Eval(ctx context.Context, ts time.Time) error {
 	select {
 	case <-errCh:
 		return err
-	case result, ok := <- resultCh:
+	case result, ok := <-resultCh:
 		if !ok {
 			break
 		}
@@ -144,11 +144,11 @@ func (r *FrequencyRule)Eval(ctx context.Context, ts time.Time) error {
 			glog.V(2).Infof("Rule %s query hit %d > threshold %d, trigger an alert.", r.Name(), result.Hits, r.rule.NumEvents)
 			//TODO: support one alert rule for multi indices
 			r.active[0] = &Alert{
-				Name:r.rule.Alert,
-				State:StateFiring,
-				Labels:r.rule.Labels,
-				Annotations:r.rule.Annotations,
-				FiredAt:ts,
+				Name:        r.rule.Alert,
+				State:       StateFiring,
+				Labels:      r.rule.Labels,
+				Annotations: r.rule.Annotations,
+				FiredAt:     ts,
 			}
 		}
 		dynamicQueryInterval(r, result.Took)
@@ -182,9 +182,9 @@ func (r *FrequencyRule) currentAlerts() []*Alert {
 
 func NewFrequencyRule(rule rulefmt.Rule, interval time.Duration) *FrequencyRule {
 	return &FrequencyRule{
-		mtx:sync.Mutex{},
-		rule:rule,
-		active:make(map[uint64]*Alert),
-		interval:interval,
+		BaseRule: &BaseRule{rule: rule},
+		mtx:      sync.Mutex{},
+		active:   make(map[uint64]*Alert),
+		interval: interval,
 	}
 }
