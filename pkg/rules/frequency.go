@@ -13,8 +13,10 @@ import (
 )
 
 const (
-	SLOWQUERYTOOK     = 2000
-	SLOWQUERYINTERVAL = 2 * time.Minute
+	SLOWQUERYTOOK     		= 2000
+	SLOWQUERYINTERVAL 		= 2 * time.Minute
+
+	DEFAULTVALIDDURATION	= "15m"
 )
 
 func elasticEndpoints(addr string) []string {
@@ -133,6 +135,14 @@ func (r *FrequencyRule) Eval(ctx context.Context, ts time.Time) error {
 			filter.Query.QueryString)
 	}
 
+	var validUntil time.Time
+	validDuration, err := time.ParseDuration(DEFAULTVALIDDURATION)
+	if err != nil {
+		validUntil = ts
+	} else {
+		validUntil = ts.Add(validDuration)
+	}
+	
 	select {
 	case <-errCh:
 		return err
@@ -149,6 +159,7 @@ func (r *FrequencyRule) Eval(ctx context.Context, ts time.Time) error {
 				Labels:      r.rule.Labels,
 				Annotations: r.rule.Annotations,
 				FiredAt:     ts,
+				ValidUntil:  validUntil,
 			}
 		}
 		dynamicQueryInterval(r, result.Took)
