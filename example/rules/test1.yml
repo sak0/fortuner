@@ -1,0 +1,20 @@
+groups:
+- name: 813bc1fe-03e5-4ce5-a532-ec3bfbe8d4d9
+  rules:
+  - alert: d1f8622c-ad89-49d3-b83b-ec6bd6735e88
+    index: index_5e51e60635ce4600_1b9b4d6db680492b*
+    es_hosts: 10.214.153.12:9200,10.214.153.14:9200,10.214.153.13:9200
+    type: any
+    filter:
+    - query:
+        query_string: ERROR
+    labels:
+      trigger_interval: 5m
+    annotations:
+      ALARM_STRATEGY_ID: 813bc1fe-03e5-4ce5-a532-ec3bfbe8d4d9
+      alarm_type: log
+      alert_rule_uuid: 2e2c9637-0348-49a3-88d9-81664b2a3358
+      tenant_id: 8a698402685494ff0168553ed07400b4
+      trigger_interval: 5m
+      object_uuid: 7dd0b7de-cf83-4dc1-8815-24692d571b55
+      source: /var/log/t.log

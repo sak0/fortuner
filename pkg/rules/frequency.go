@@ -142,7 +142,7 @@ func (r *FrequencyRule) Eval(ctx context.Context, ts time.Time) error {
 	} else {
 		validUntil = ts.Add(validDuration)
 	}
-	
+
 	select {
 	case <-errCh:
 		return err

@@ -13,11 +13,11 @@ import (
 
 type AnyRule struct {
 	*BaseRule
-	mtx          sync.Mutex
-	active       map[uint64]*Alert
-	interval     time.Duration
-	origInterval time.Duration
-	lastEval     time.Time
+	mtx          	sync.Mutex
+	active       	map[uint64]*Alert
+	interval     	time.Duration
+	origInterval 	time.Duration
+	lastEval     	time.Time
 }
 
 func (r *AnyRule) Name() string {
@@ -76,11 +76,11 @@ func (r *AnyRule) Eval(ctx context.Context, ts time.Time) error {
 		return err
 	}
 	if !arrayIn(indices, r.rule.Index) {
-		return fmt.Errorf("Can not find index: %s on elastciSearch %s", r.rule.Index, r.rule.ElasticHosts)
+		return fmt.Errorf("can not find index: %s on elastciSearch %s", r.rule.Index, r.rule.ElasticHosts)
 	}
 
 	filter := r.rule.Filter[0]
-	startTime := time.Now().Add(-r.rule.TimeFrame)
+	startTime, _ := time.Parse("2006-01-02 15:03:04", "2019-01-01 00:00:00")
 
 	var resultCh chan *query.QueryHitResult
 	var errCh chan error
