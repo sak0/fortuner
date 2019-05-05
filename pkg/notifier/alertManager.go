@@ -45,6 +45,7 @@ func (a *AlertManager)Send(ctx context.Context, b []byte, alertName string) erro
 	}
 
 	glog.V(3).Infof("Send alert %s to AlertManager %s.\n", alertName, a.Endpoint)
+	glog.V(5).Infof("Alert: %s\n", string(b))
 
 	req, err := http.NewRequest("POST", a.Endpoint, bytes.NewReader(b))
 	if err != nil {

@@ -93,6 +93,14 @@ func (r *AnyRule) Eval(ctx context.Context, ts time.Time) error {
 			filter.Query.QueryString)
 	}
 
+	var validUntil time.Time
+	validDuration, err := time.ParseDuration(DEFAULTVALIDDURATION)
+	if err != nil {
+		validUntil = ts
+	} else {
+		validUntil = ts.Add(validDuration)
+	}
+
 	select {
 	case <-errCh:
 		return err
@@ -104,11 +112,12 @@ func (r *AnyRule) Eval(ctx context.Context, ts time.Time) error {
 			glog.V(2).Infof("Rule %s query hit %d > threshold %d, trigger an alert.", r.Name(), result.Hits, 1)
 			//TODO: support one alert rule for multi indices
 			r.active[0] = &Alert{
-				Name:        r.rule.Alert,
-				State:       StateFiring,
-				Labels:      r.rule.Labels,
-				Annotations: r.rule.Annotations,
-				FiredAt:     ts,
+				Name:        	r.rule.Alert,
+				State:       	StateFiring,
+				Labels:      	r.rule.Labels,
+				Annotations: 	r.rule.Annotations,
+				FiredAt:     	ts,
+				ValidUntil:		validUntil,
 			}
 		}
 		dynamicQueryInterval(r, result.Took)

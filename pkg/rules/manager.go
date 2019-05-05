@@ -43,7 +43,7 @@ func (g *Group) Run() {
 			return
 		case <-tick.C:
 			glog.V(2).Infof("group %s with file %s Eval", g.name, g.file)
-			g.Eval(time.Now())
+			g.Eval(time.Now().UTC())
 		}
 	}
 }

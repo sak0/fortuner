@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
-		"time"
+	"time"
 
 	_ "net/http/pprof"
 
@@ -16,7 +16,7 @@ import (
 	"github.com/sak0/fortuner/pkg/rules"
 	"github.com/sak0/fortuner/pkg/utils"
 
-		"github.com/golang/glog"
+	"github.com/golang/glog"
 )
 
 var (
