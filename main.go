@@ -170,7 +170,7 @@ func sendAlerts(s sender, externalURL string) rules.NotifyFunc {
 			a := &notifier.Alert{
 				Name:         alert.Name,
 				StartsAt:     alert.FiredAt,
-				Labels:       alert.Labels,
+				Labels:       labels,
 				Annotations:  alert.Annotations,
 				GeneratorURL: externalURL,
 			}
