@@ -161,6 +161,12 @@ func sendAlerts(s sender, externalURL string) rules.NotifyFunc {
 		var res []*notifier.Alert
 
 		for _, alert := range alerts {
+
+			// fixed alertmanager inhibit by alertname
+			labels := alert.Labels
+			if labels != nil {
+				labels["alertname"] = alert.Name
+			}
 			a := &notifier.Alert{
 				Name:         alert.Name,
 				StartsAt:     alert.FiredAt,
